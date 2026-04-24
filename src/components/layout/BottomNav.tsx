@@ -19,11 +19,12 @@ const BottomNav = ({ navigation }: any) => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.navigate('Bookmarks')}>
-          {isActive('Bookmarks') ? (
-            <BookmarkR width={40} height={40} />
+
+        <TouchableOpacity onPress={() => navigation.navigate('Info')}>
+          {isActive('Info') ? (
+            <ListR width={40} height={40} />
           ) : (
-            <Bookmark width={40} height={40} />
+            <List width={40} height={40} />
           )}
         </TouchableOpacity>
 
@@ -35,11 +36,11 @@ const BottomNav = ({ navigation }: any) => {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Capture')}>
-          {isActive('Capture') ? (
-            <ListR width={40} height={40} />
+        <TouchableOpacity onPress={() => navigation.navigate('Bookmarks')}>
+          {isActive('Bookmarks') ? (
+            <BookmarkR width={40} height={40} />
           ) : (
-            <List width={40} height={40} />
+            <Bookmark width={40} height={40} />
           )}
         </TouchableOpacity>
       </View>

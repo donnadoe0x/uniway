@@ -8,7 +8,7 @@ const ARNavigationScreen = ({ route }: any) => {
 
   return (
     <View style={styles.container}>
-      <Header title="AR Navigation" />
+      <Header title="UniWay" />
 
       <View style={styles.content}>
         <Text style={styles.title}>Navigating to:</Text>
