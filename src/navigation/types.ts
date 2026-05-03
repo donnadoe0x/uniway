@@ -3,6 +3,7 @@ export type RootStackParamList = {
   Capture: undefined;
   Confirm: { detectedRoom: string };
   Search: undefined;
-  ARNavigation: { room: string };
+  ARNavigation: { room?: string; description?: string };
   Bookmarks: undefined;
+  Info: undefined;
 };

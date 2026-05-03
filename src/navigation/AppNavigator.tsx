@@ -8,6 +8,7 @@ import ConfirmScreen from '../screens/confirm/ConfirmScreen';
 import SearchScreen from '../screens/search/SearchScreen';
 import ARNavigationScreen from '../screens/ar/ARNavigationScreen';
 import BookmarksScreen from '../screens/bookmarks/BookmarksScreen';
+import InformationPage from '../screens/info/informationPage';
 
 import { RootStackParamList } from './types';
 
@@ -18,7 +19,7 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerShown: false, // we use custom header
+          headerShown: false,
         }}
       >
         <Stack.Screen name="Home" component={HomeScreen} />
@@ -27,6 +28,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="ARNavigation" component={ARNavigationScreen} />
         <Stack.Screen name="Bookmarks" component={BookmarksScreen} />
+        <Stack.Screen name="Info" component={InformationPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );
