@@ -12,14 +12,41 @@ import {
 import Header from '../../components/layout/Header';
 import BottomNav from '../../components/layout/BottomNav';
 
-const classrooms = [
-  'قاعة ج 205',
-  'قاعة د 101',
-  'قاعة د 210',
-];
+const BASE_URL = 'https://rayouf0-uniway-backend-core.hf.space';
 
 const SearchScreen = ({ navigation }: any) => {
+
   const [search, setSearch] = useState('');
+  const [results, setResults] = useState<any[]>([]);
+
+  // البحث من الـ API
+  const searchClassrooms = async (text: string) => {
+
+    setSearch(text);
+
+    // إذا فاضي امسح النتائج
+    if (text.trim() === '') {
+      setResults([]);
+      return;
+    }
+
+    try {
+
+      const response = await fetch(
+        `${BASE_URL}/classrooms/search?query=${text}`
+      );
+
+      const data = await response.json();
+
+      console.log('API RESULT:', data);
+
+      // ✅ التعديل هنا (التأكد أنه Array)
+      setResults(Array.isArray(data) ? data : data.data || []);
+
+    } catch (error) {
+      console.log('Search Error:', error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -47,11 +74,16 @@ const SearchScreen = ({ navigation }: any) => {
               placeholderTextColor="#777"
               style={styles.input}
               value={search}
-              onChangeText={setSearch}
+              onChangeText={searchClassrooms}
             />
 
             {/* زر حذف النص */}
-            <TouchableOpacity onPress={() => setSearch('')}>
+            <TouchableOpacity
+              onPress={() => {
+                setSearch('');
+                setResults([]);
+              }}
+            >
               <Text style={styles.icon}>✕</Text>
             </TouchableOpacity>
 
@@ -59,14 +91,34 @@ const SearchScreen = ({ navigation }: any) => {
 
           {/* النتائج */}
           <FlatList
-            data={classrooms}
+            data={results}
             keyExtractor={(item, index) => index.toString()}
+
             renderItem={({ item }) => (
+
               <TouchableOpacity
                 style={styles.item}
-                onPress={() => navigation.navigate('ARNavigation')}
+                onPress={() =>
+                  navigation.navigate('ARNavigation', {
+                    classroom: item,
+                  })
+                }
               >
-                <Text style={styles.itemText}>{item}</Text>
+                {/* ✅ عرض رقم القاعة */}
+                <Text style={styles.itemText}>
+                  {item.roomId}
+                </Text>
+
+                {/* ✅ عرض التفاصيل */}
+                <Text style={{
+                  textAlign: 'right',
+                  color: '#666',
+                  marginTop: 5,
+                  fontSize: 14
+                }}>
+                  {item.className} - مبنى {item.buildingId} - الدور {item.floorNum}
+                </Text>
+
               </TouchableOpacity>
             )}
           />
@@ -84,6 +136,7 @@ const SearchScreen = ({ navigation }: any) => {
 export default SearchScreen;
 
 const styles = StyleSheet.create({
+
   safeArea: {
     flex: 1,
     backgroundColor: '#fff',
@@ -124,31 +177,29 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ddd',
   },
 
-  input: {
-    flex: 1,
-    fontSize: 16,
-    textAlign: 'right',
-    color: '#000',
+  icon: {
+    fontSize: 22,
+    color: '#555',
   },
 
-  icon: {
-    fontSize: 20,
-    color: '#444',
-    marginHorizontal: 8,
+  input: {
+    flex: 1,
+    fontSize: 18,
+    textAlign: 'right',
+    marginHorizontal: 10,
   },
 
   item: {
-    paddingVertical: 18,
+    paddingVertical: 25,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
-    backgroundColor: '#fff',
   },
 
   itemText: {
     fontSize: 22,
     textAlign: 'right',
-    color: '#222',
-    fontWeight: '500',
+    color: '#333',
   },
+
 });
