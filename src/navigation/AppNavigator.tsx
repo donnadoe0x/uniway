@@ -8,6 +8,10 @@ import ConfirmScreen from '../screens/confirm/ConfirmScreen';
 import SearchScreen from '../screens/search/SearchScreen';
 import ARNavigationScreen from '../screens/ar/ARNavigationScreen';
 import BookmarksScreen from '../screens/bookmarks/BookmarksScreen';
+import InformationPage from '../screens/info/informationPage';
+
+// 👇 أضفنا شاشة التفاصيل
+import InformationPageDetails from '../screens/info/informationPageDetails';
 
 import { RootStackParamList } from './types';
 
@@ -27,6 +31,20 @@ const AppNavigator = () => {
         <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="ARNavigation" component={ARNavigationScreen} />
         <Stack.Screen name="Bookmarks" component={BookmarksScreen} />
+
+        {/* Information Page */}
+        <Stack.Screen
+          name="informationPage"
+          component={InformationPage}
+        />
+
+        {/* 👇 شاشة التفاصيل الجديدة */}
+        <Stack.Screen
+          name="InformationDetails"
+          component={InformationPageDetails}
+          options={{ headerShown: false }}
+        />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -5,4 +5,5 @@ export type RootStackParamList = {
   Search: undefined;
   ARNavigation: { room: string };
   Bookmarks: undefined;
+  informationPage: undefined;
 };
