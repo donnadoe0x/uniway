@@ -70,5 +70,26 @@ const styles = StyleSheet.create({
   bottomLine: {
     height: 1,
     backgroundColor: '#d9d9d9',
+    paddingTop: 50,
+    paddingBottom: 25,
+    alignItems: 'center',
+    backgroundColor: '#f7f7f7',
+
+
+    // 🔥 shadow (fixed)
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6, // must be between 0–1
+    shadowRadius: 4,
+    elevation: 12,
+
+    
+    marginBottom: 12,
+  },
+
+  title: {
+    color: '#1d1d1d',
+    fontSize: 32,
+    fontWeight: 'bold',
   },
 });

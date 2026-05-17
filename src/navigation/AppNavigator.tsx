@@ -22,7 +22,7 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerShown: false, // we use custom header
+          headerShown: false,
         }}
       >
         <Stack.Screen name="Home" component={HomeScreen} />
@@ -45,6 +45,7 @@ const AppNavigator = () => {
           options={{ headerShown: false }}
         />
 
+        <Stack.Screen name="Info" component={InformationPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );
