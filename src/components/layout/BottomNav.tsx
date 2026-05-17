@@ -1,5 +1,10 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
+
+// استيراد الصور
+import Bookmark from '../../assets/images/Bookmark.svg';
+import Home from '../../assets/images/Home.svg';
+import List from '../../assets/images/List.svg';
 import { useRoute } from '@react-navigation/native';
 
 import Bookmark from '../../assets/images/Bookmark.svg';
@@ -16,6 +21,20 @@ const BottomNav = ({ navigation }: any) => {
 
   const isActive = (screen: string) => route.name === screen;
 
+      {/* المفضلة */}
+      <TouchableOpacity onPress={() => navigation.navigate('Bookmarks')}>
+        <Bookmark width={26} height={26} />
+      </TouchableOpacity>
+
+      {/* الرئيسية */}
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <Home width={26} height={26} />
+      </TouchableOpacity>
+
+      {/* المعلومات */}
+      <TouchableOpacity onPress={() => navigation.navigate('informationPage')}>
+        <List width={26} height={26} />
+      </TouchableOpacity>
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
@@ -63,6 +82,10 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     flexDirection: 'row',
     justifyContent: 'space-around',
+    paddingVertical: 15,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
     alignItems: 'center',
 
     elevation: 20,
