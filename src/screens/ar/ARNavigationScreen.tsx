@@ -3,7 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Header from '../../components/layout/Header';
 import BottomNav from '../../components/layout/BottomNav';
-import { colors } from '../../constants/theme';
+
+const screenColors = {
+  background: '#f7f7f7',
+  navy: '#04324A',
+  red: '#700003',
+  cream: '#FBEFD5',
+  dark: '#1d1d1d',
+  white: '#ffffff',
+};
 
 const ARNavigationScreen = ({ navigation, route }: any) => {
   const room = route?.params?.room || 'قاعة غير محددة';
@@ -50,88 +58,122 @@ export default ARNavigationScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: screenColors.background,
   },
+
   content: {
     flex: 1,
     paddingHorizontal: 20,
     paddingBottom: 120,
   },
+
   destinationCard: {
-    backgroundColor: colors.navy,
+    backgroundColor: screenColors.navy,
     borderRadius: 22,
     padding: 20,
     marginTop: 20,
     marginBottom: 18,
+
     elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
   },
+
   smallLabel: {
-    color: colors.cream,
-    fontSize: 13,
+    color: screenColors.cream,
+    fontSize: 14,
     textAlign: 'right',
-    opacity: 0.85,
+    opacity: 0.9,
+    writingDirection: 'rtl',
   },
+
   roomText: {
-    color: colors.cream,
+    color: screenColors.cream,
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'right',
     marginTop: 6,
+    writingDirection: 'rtl',
   },
+
   description: {
-    color: colors.cream,
+    color: screenColors.cream,
     fontSize: 14,
     textAlign: 'right',
     marginTop: 8,
     lineHeight: 22,
+    writingDirection: 'rtl',
   },
+
   navigationPanel: {
     flex: 1,
-    backgroundColor: colors.cream,
+    backgroundColor: screenColors.cream,
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
-    borderWidth: 1.5,
-    borderColor: colors.navy,
+    padding: 24,
     marginBottom: 20,
+
+    borderWidth: 1,
+    borderColor: '#e4dac5',
+
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
   },
+
   panelTitle: {
-    color: colors.navy,
-    fontSize: 20,
+    color: screenColors.navy,
+    fontSize: 21,
     fontWeight: 'bold',
     marginBottom: 18,
+    textAlign: 'center',
   },
+
   compassCircle: {
     width: 86,
     height: 86,
     borderRadius: 43,
     borderWidth: 3,
-    borderColor: colors.red,
+    borderColor: screenColors.red,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 18,
   },
+
   compassText: {
-    color: colors.red,
+    color: screenColors.red,
     fontSize: 28,
     fontWeight: 'bold',
   },
+
   panelText: {
-    color: colors.navy,
-    fontSize: 14,
+    color: screenColors.navy,
+    fontSize: 15,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
+    writingDirection: 'rtl',
   },
+
   endButton: {
-    backgroundColor: colors.red,
+    backgroundColor: screenColors.red,
     borderRadius: 18,
     paddingVertical: 15,
     alignItems: 'center',
+
     elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.16,
+    shadowRadius: 6,
   },
+
   endButtonText: {
-    color: colors.cream,
+    color: screenColors.white,
     fontSize: 16,
     fontWeight: 'bold',
   },

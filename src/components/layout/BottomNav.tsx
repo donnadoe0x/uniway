@@ -1,10 +1,5 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-
-// استيراد الصور
-import Bookmark from '../../assets/images/Bookmark.svg';
-import Home from '../../assets/images/Home.svg';
-import List from '../../assets/images/List.svg';
 import { useRoute } from '@react-navigation/native';
 
 import Bookmark from '../../assets/images/Bookmark.svg';
@@ -16,38 +11,33 @@ import HomeR from '../../assets/images/HomeR.svg';
 import List from '../../assets/images/List.svg';
 import ListR from '../../assets/images/ListR.svg';
 
+import { colors } from '../../constants/theme';
+
 const BottomNav = ({ navigation }: any) => {
   const route = useRoute();
 
   const isActive = (screen: string) => route.name === screen;
 
-      {/* المفضلة */}
-      <TouchableOpacity onPress={() => navigation.navigate('Bookmarks')}>
-        <Bookmark width={26} height={26} />
-      </TouchableOpacity>
-
-      {/* الرئيسية */}
-      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-        <Home width={26} height={26} />
-      </TouchableOpacity>
-
-      {/* المعلومات */}
-      <TouchableOpacity onPress={() => navigation.navigate('informationPage')}>
-        <List width={26} height={26} />
-      </TouchableOpacity>
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Info')}>
-          {isActive('Info') ? (
-            <ListR width={40} height={40} />
+        {/* Bookmarks */}
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => navigation.navigate('Bookmarks')}
+        >
+          {isActive('Bookmarks') ? (
+            <BookmarkR width={40} height={40} />
           ) : (
-            <List width={40} height={40} />
+            <Bookmark width={40} height={40} />
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        {/* Home */}
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => navigation.navigate('Home')}
+        >
           {isActive('Home') ? (
             <HomeR width={40} height={40} />
           ) : (
@@ -55,11 +45,15 @@ const BottomNav = ({ navigation }: any) => {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Bookmarks')}>
-          {isActive('Bookmarks') ? (
-            <BookmarkR width={40} height={40} />
+        {/* Info */}
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => navigation.navigate('Info')}
+        >
+          {isActive('Info') ? (
+            <ListR width={40} height={40} />
           ) : (
-            <Bookmark width={40} height={40} />
+            <List width={40} height={40} />
           )}
         </TouchableOpacity>
       </View>
@@ -76,23 +70,25 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
   },
-  container: {
-    height: 74,
-    backgroundColor: '#f7f7f7',
-    borderRadius: 24,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
+container: {
+  height: 74,
+  backgroundColor: '#ffffff',
+  borderRadius: 24,
+  flexDirection: 'row',
+  justifyContent: 'space-around',
+  alignItems: 'center',
+
+  borderWidth: 1,
+  borderColor: '#eeeeee',
+
+  elevation: 12,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.18,
+  shadowRadius: 12,
+},
+  iconButton: {
     alignItems: 'center',
-
-    elevation: 20,
-
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
+    justifyContent: 'center',
   },
 });
