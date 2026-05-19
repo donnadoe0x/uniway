@@ -8,6 +8,7 @@ import {
   Alert,
   PermissionsAndroid,
   Platform,
+  Linking,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -15,71 +16,82 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Header from '../../components/layout/Header';
 import BottomNav from '../../components/layout/BottomNav';
 
+const CAMERA_POPUP_KEY = 'camera_permission_seen';
+
 const CaptureScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(false);
 
-  // 🔥 Check & request REAL camera permission (Android)
-  const requestCameraPermission = async () => {
-    if (Platform.OS !== 'android') return true;
+  const showCameraInfoOnce = async (): Promise<boolean> => {
+    const hasSeenPopup = await AsyncStorage.getItem(CAMERA_POPUP_KEY);
 
-    const granted = await PermissionsAndroid.request(
+    if (hasSeenPopup) {
+      return true;
+    }
+
+    return new Promise((resolve) => {
+      Alert.alert(
+        'الوصول إلى الكاميرا',
+        'نحتاج إلى إذن لاستخدام الكاميرا لالتقاط صورة لوحة القاعة وتحديد موقعك.',
+        [
+          {
+            text: 'إلغاء',
+            style: 'cancel',
+            onPress: () => resolve(false),
+          },
+          {
+            text: 'موافقة',
+            onPress: async () => {
+              await AsyncStorage.setItem(CAMERA_POPUP_KEY, 'true');
+              resolve(true);
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    });
+  };
+
+  const requestCameraPermission = async (): Promise<boolean> => {
+    if (Platform.OS !== 'android') {
+      return true;
+    }
+
+    const alreadyGranted = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.CAMERA
+    );
+
+    if (alreadyGranted) {
+      return true;
+    }
+
+    const result = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.CAMERA,
       {
         title: 'إذن استخدام الكاميرا',
-        message: 'يحتاج التطبيق إلى استخدام الكاميرا لالتقاط صورة القاعة',
+        message: 'يحتاج تطبيق UniWay إلى استخدام الكاميرا لالتقاط صورة لوحة القاعة.',
         buttonPositive: 'موافق',
         buttonNegative: 'إلغاء',
       }
     );
 
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  };
+    if (result === PermissionsAndroid.RESULTS.GRANTED) {
+      return true;
+    }
 
-  // 🔥 Show custom popup ONLY once
-  const askCameraPermission = async () => {
-    const hasSeenPopup = await AsyncStorage.getItem('camera_permission_seen');
-
-    if (!hasSeenPopup) {
+    if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
       Alert.alert(
-        'الوصول إلى الكاميرا',
-        'نحتاج إلى إذن لاستخدام الكاميرا لالتقاط صورة القاعة.',
+        'إذن الكاميرا غير مفعل',
+        'يرجى تفعيل إذن الكاميرا من إعدادات التطبيق.',
         [
-          {
-            text: 'إلغاء',
-            style: 'cancel',
-          },
-          {
-            text: 'موافقة',
-            onPress: async () => {
-              await AsyncStorage.setItem('camera_permission_seen', 'true');
-
-              const allowed = await requestCameraPermission();
-              if (!allowed) {
-                Alert.alert(
-                  'تم الرفض',
-                  'يرجى تفعيل الكاميرا من إعدادات الجهاز'
-                );
-                return;
-              }
-
-              openCamera();
-            },
-          },
+          { text: 'إلغاء', style: 'cancel' },
+          { text: 'فتح الإعدادات', onPress: () => Linking.openSettings() },
         ]
       );
-    } else {
-      const allowed = await requestCameraPermission();
-
-      if (!allowed) {
-        Alert.alert(
-          'تم الرفض',
-          'يرجى تفعيل الكاميرا من إعدادات الجهاز'
-        );
-        return;
-      }
-
-      openCamera();
+      return false;
     }
+
+    Alert.alert('تم الرفض', 'لا يمكن فتح الكاميرا بدون السماح باستخدامها.');
+    return false;
   };
 
   const handleImage = async (uri: string | undefined) => {
@@ -91,7 +103,6 @@ const CaptureScreen = ({ navigation }: any) => {
     try {
       setLoading(true);
 
-      // 🔥 simulate ML
       setTimeout(() => {
         setLoading(false);
 
@@ -106,38 +117,67 @@ const CaptureScreen = ({ navigation }: any) => {
   };
 
   const openCamera = async () => {
-    const result = await launchCamera({
-      mediaType: 'photo',
-      quality: 0.8,
-      saveToPhotos: false,
-    });
+    try {
+      const shouldContinue = await showCameraInfoOnce();
 
-    if (result.didCancel) return;
+      if (!shouldContinue) {
+        return;
+      }
 
-    if (result.errorCode) {
-      Alert.alert('خطأ', result.errorMessage || 'تعذر فتح الكاميرا');
-      return;
+      const allowed = await requestCameraPermission();
+
+      if (!allowed) {
+        return;
+      }
+
+      const result = await launchCamera({
+        mediaType: 'photo',
+        quality: 0.8,
+        saveToPhotos: false,
+        maxWidth: 1000,
+        maxHeight: 1000,
+      });
+
+      if (result.didCancel) {
+        return;
+      }
+
+      if (result.errorCode) {
+        Alert.alert('خطأ', result.errorMessage || 'تعذر فتح الكاميرا');
+        return;
+      }
+
+      const imageUri = result.assets?.[0]?.uri;
+      handleImage(imageUri);
+    } catch (error) {
+      Alert.alert('خطأ', 'تعذر فتح الكاميرا');
     }
-
-    const imageUri = result.assets?.[0]?.uri;
-    handleImage(imageUri);
   };
 
   const openGallery = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      selectionLimit: 1,
-    });
+    try {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 0.8,
+        selectionLimit: 1,
+        maxWidth: 1000,
+        maxHeight: 1000,
+      });
 
-    if (result.didCancel) return;
+      if (result.didCancel) {
+        return;
+      }
 
-    if (result.errorCode) {
-      Alert.alert('خطأ', result.errorMessage || 'تعذر فتح المعرض');
-      return;
+      if (result.errorCode) {
+        Alert.alert('خطأ', result.errorMessage || 'تعذر فتح المعرض');
+        return;
+      }
+
+      const imageUri = result.assets?.[0]?.uri;
+      handleImage(imageUri);
+    } catch (error) {
+      Alert.alert('خطأ', 'تعذر فتح المعرض');
     }
-
-    const imageUri = result.assets?.[0]?.uri;
-    handleImage(imageUri);
   };
 
   return (
@@ -146,20 +186,15 @@ const CaptureScreen = ({ navigation }: any) => {
 
       <View style={styles.content}>
         <Text style={styles.title}>التقطي صورة واضحة للوحة القاعة</Text>
+
         <Text style={styles.subtitle}>
           تأكدي من ظهور اسم القاعة بشكل واضح داخل الصورة
         </Text>
 
         <View style={styles.instructionBox}>
-          <Text style={styles.instructionText}>
-            • وجّهي الكاميرا نحو لوحة القاعة
-          </Text>
-          <Text style={styles.instructionText}>
-            • تأكدي من الإضاءة ووضوح النص
-          </Text>
-          <Text style={styles.instructionText}>
-            • التقطي الصورة ثم انتظري تحليلها
-          </Text>
+          <Text style={styles.instructionText}>• وجّهي الكاميرا نحو لوحة القاعة</Text>
+          <Text style={styles.instructionText}>• تأكدي من الإضاءة ووضوح النص</Text>
+          <Text style={styles.instructionText}>• التقطي الصورة ثم انتظري تحليلها</Text>
         </View>
 
         {loading ? (
@@ -169,20 +204,12 @@ const CaptureScreen = ({ navigation }: any) => {
           </View>
         ) : (
           <>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={askCameraPermission}
-            >
+            <TouchableOpacity style={styles.primaryButton} onPress={openCamera}>
               <Text style={styles.primaryButtonText}>فتح الكاميرا</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={openGallery}
-            >
-              <Text style={styles.secondaryButtonText}>
-                اختيار صورة من المعرض
-              </Text>
+            <TouchableOpacity style={styles.secondaryButton} onPress={openGallery}>
+              <Text style={styles.secondaryButtonText}>اختيار صورة من المعرض</Text>
             </TouchableOpacity>
           </>
         )}
@@ -207,15 +234,18 @@ const styles = StyleSheet.create({
     paddingBottom: 110,
   },
   title: {
-    fontSize: 20,
+    fontSize: 21,
     fontWeight: 'bold',
     color: '#700003',
     textAlign: 'right',
+    writingDirection: 'rtl',
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#4B4B4B',
     textAlign: 'right',
+    writingDirection: 'rtl',
     lineHeight: 22,
     marginBottom: 24,
   },
@@ -229,7 +259,8 @@ const styles = StyleSheet.create({
   instructionText: {
     fontSize: 14,
     color: '#1d1d1d',
-    textAlign: 'left',
+    textAlign: 'right',
+    writingDirection: 'rtl',
     marginBottom: 8,
     lineHeight: 22,
   },
@@ -243,7 +274,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   primaryButtonText: {
-    color: '#f3f1f5',
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
   },

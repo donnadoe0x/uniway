@@ -5,60 +5,53 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  StatusBar
+  StatusBar,
 } from 'react-native';
 
 import Header from '../../components/layout/Header';
 import BottomNav from '../../components/layout/BottomNav';
-
-// ✅ استيراد اللوقو فقط
 import HomeLogo from '../../assets/images/UniWay_colored.svg';
 
 const HomeScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#1a1a1a" barStyle="light-content" />
+      <StatusBar backgroundColor="#ffffff" barStyle="dark-content" />
 
-      <Header title="uniWay" navigation={navigation} />
-
-      <View style={styles.container}>
-
-        {/* ✅ اللوقو */}
-        <View style={styles.logoContainer}>
-          <HomeLogo width={120} height={120} />
-        </View>
-
-        {/* النصوص */}
-        <Text style={styles.welcomeText}>اهلا في uniWay</Text>
-        <Text style={styles.subtitle}>اختر طريقة تحديد القاعة</Text>
-
-        {/* الأزرار */}
-        <View style={styles.buttonsContainer}>
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate('Search')}
-          >
-            <Text style={styles.buttonText}>كتابة اسم القاعة</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate('Capture')}
-          >
-            <Text style={styles.buttonText}>تصوير لوحة القاعة</Text>
-          </TouchableOpacity>
-
-        </View>
-
+      <View>
+        <Header title="UniWay" />
       </View>
 
-      {/* ✅ البوتوم ناف */}
-      <BottomNav
-        navigation={navigation}
-        route={{ name: 'Home' }}
-      />
+      <View style={styles.container}>
+        <View style={styles.logoContainer}>
+          <HomeLogo width={135} height={135} />
+        </View>
 
+        <Text style={styles.welcomeText}>أهلاً بكِ في UniWay</Text>
+
+        <Text style={styles.subtitle}>
+          اختاري طريقة تحديد موقعك داخل المبنى
+        </Text>
+
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('Search')}
+          >
+            <Text style={styles.primaryButtonText}>كتابة اسم القاعة</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('Capture')}
+          >
+            <Text style={styles.secondaryButtonText}>تصوير لوحة القاعة</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <BottomNav navigation={navigation} />
     </SafeAreaView>
   );
 };
@@ -71,32 +64,41 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
 
+  headerWrapper: {
+    marginTop: 18,
+  },
+
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 25,
+    paddingBottom: 130,
     backgroundColor: '#ffffff',
   },
 
   logoContainer: {
     marginBottom: 30,
     alignItems: 'center',
+    justifyContent: 'center',
   },
 
   welcomeText: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    fontSize: 29,
+    fontWeight: '800',
+    color: '#1d1d1d',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
+    writingDirection: 'rtl',
   },
 
   subtitle: {
-    fontSize: 15,
-    color: '#666',
+    fontSize: 17,
+    color: '#666666',
     textAlign: 'center',
     marginBottom: 40,
+    lineHeight: 25,
+    writingDirection: 'rtl',
   },
 
   buttonsContainer: {
@@ -104,25 +106,47 @@ const styles = StyleSheet.create({
     gap: 18,
   },
 
-  button: {
-    flexDirection: 'row-reverse',
+  primaryButton: {
+    width: '100%',
+    backgroundColor: '#700003',
+    paddingVertical: 17,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#8B0000',
-    paddingVertical: 16,
-    borderRadius: 25,
-    gap: 10,
 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
+    shadowOpacity: 0.18,
+    shadowRadius: 6,
     elevation: 5,
   },
 
-  buttonText: {
+  primaryButtonText: {
     color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+
+  secondaryButton: {
+    width: '100%',
+    backgroundColor: '#700003',
+    paddingVertical: 17,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.14,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+
+  secondaryButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
   },
 });
