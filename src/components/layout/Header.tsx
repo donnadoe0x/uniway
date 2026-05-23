@@ -20,7 +20,8 @@ export default Header;
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#ffffff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 18 : 35,
+    paddingTop:
+      Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) + 18 : 35,
     paddingBottom: 18,
     marginBottom: 18,
 

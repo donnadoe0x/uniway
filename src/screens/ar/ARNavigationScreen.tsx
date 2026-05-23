@@ -1,55 +1,109 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  Alert,
+  NativeModules,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-import Header from '../../components/layout/Header';
-import BottomNav from '../../components/layout/BottomNav';
-
-const screenColors = {
-  background: '#f7f7f7',
-  navy: '#04324A',
-  red: '#700003',
-  cream: '#FBEFD5',
-  dark: '#1d1d1d',
-  white: '#ffffff',
+type ARNavigationScreenProps = {
+  route?: {
+    params?: {
+      startRoom?: string;
+      detectedRoom?: string;
+      destinationRoom?: string;
+      selectedRoom?: string;
+      room?: string;
+    };
+  };
+  navigation?: any;
 };
 
-const ARNavigationScreen = ({ navigation, route }: any) => {
-  const room = route?.params?.room || 'قاعة غير محددة';
-  const description = route?.params?.description || 'سيتم عرض تفاصيل الموقع هنا';
+const { UnityModule } = NativeModules;
+
+const ARNavigationScreen = ({ route, navigation }: ARNavigationScreenProps) => {
+  const [status, setStatus] = useState('Preparing AR navigation...');
+
+  const startRoom = useMemo(() => {
+    return (
+      route?.params?.startRoom ||
+      route?.params?.detectedRoom ||
+      'room D 101'
+    );
+  }, [route?.params]);
+
+  const destinationRoom = useMemo(() => {
+    return (
+      route?.params?.destinationRoom ||
+      route?.params?.selectedRoom ||
+      route?.params?.room ||
+      'room D 101'
+    );
+  }, [route?.params]);
+
+  const openUnityAR = () => {
+    if (Platform.OS !== 'android') {
+      setStatus('Unity AR is currently integrated for Android only.');
+      Alert.alert(
+        'Android only',
+        'Unity AR integration is currently available on Android only.',
+      );
+      return;
+    }
+
+    if (!UnityModule) {
+      setStatus('UnityModule is not available. Rebuild the Android app.');
+      Alert.alert(
+        'UnityModule not found',
+        'Make sure the Android native Unity module is added, then rebuild the app.',
+      );
+      return;
+    }
+
+    try {
+      setStatus(`Opening AR route from ${startRoom} to ${destinationRoom}...`);
+      UnityModule.openUnity(startRoom, destinationRoom);
+    } catch (error) {
+      console.log('Failed to open Unity:', error);
+      setStatus('Failed to open Unity AR.');
+      Alert.alert('Error', 'Failed to open Unity AR scene.');
+    }
+  };
+
+  useEffect(() => {
+    openUnityAR();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <Header title="UniWay" />
+    <SafeAreaView style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.title}>AR Navigation</Text>
 
-      <View style={styles.content}>
-        <View style={styles.destinationCard}>
-          <Text style={styles.smallLabel}>الوجهة الحالية</Text>
-          <Text style={styles.roomText}>{room}</Text>
-          <Text style={styles.description}>{description}</Text>
-        </View>
+        <Text style={styles.label}>Starting point</Text>
+        <Text style={styles.value}>{startRoom}</Text>
 
-        <View style={styles.navigationPanel}>
-          <Text style={styles.panelTitle}>منطقة الواقع المعزز</Text>
+        <Text style={styles.label}>Destination</Text>
+        <Text style={styles.value}>{destinationRoom}</Text>
 
-          <View style={styles.compassCircle}>
-            <Text style={styles.compassText}>N</Text>
-          </View>
+        <Text style={styles.status}>{status}</Text>
 
-          <Text style={styles.panelText}>
-            سيتم عرض الأسهم والمسار داخل هذه المنطقة عند ربط خاصية الواقع المعزز لاحقًا
-          </Text>
-        </View>
+        <TouchableOpacity style={styles.button} onPress={openUnityAR}>
+          <Text style={styles.buttonText}>Open AR Again</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.endButton}
-          onPress={() => navigation.navigate('Home')}
+          style={styles.secondaryButton}
+          onPress={() => navigation?.goBack?.()}
         >
-          <Text style={styles.endButtonText}>إنهاء الملاحة</Text>
+          <Text style={styles.secondaryButtonText}>Go Back</Text>
         </TouchableOpacity>
       </View>
-
-      <BottomNav navigation={navigation} />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -58,123 +112,79 @@ export default ARNavigationScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: screenColors.background,
-  },
-
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingBottom: 120,
-  },
-
-  destinationCard: {
-    backgroundColor: screenColors.navy,
-    borderRadius: 22,
+    backgroundColor: '#f7f7f7',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
-    marginTop: 20,
-    marginBottom: 18,
-
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
   },
 
-  smallLabel: {
-    color: screenColors.cream,
-    fontSize: 14,
-    textAlign: 'right',
-    opacity: 0.9,
-    writingDirection: 'rtl',
-  },
-
-  roomText: {
-    color: screenColors.cream,
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'right',
-    marginTop: 6,
-    writingDirection: 'rtl',
-  },
-
-  description: {
-    color: screenColors.cream,
-    fontSize: 14,
-    textAlign: 'right',
-    marginTop: 8,
-    lineHeight: 22,
-    writingDirection: 'rtl',
-  },
-
-  navigationPanel: {
-    flex: 1,
-    backgroundColor: screenColors.cream,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-    marginBottom: 20,
-
-    borderWidth: 1,
-    borderColor: '#e4dac5',
-
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-  },
-
-  panelTitle: {
-    color: screenColors.navy,
-    fontSize: 21,
-    fontWeight: 'bold',
-    marginBottom: 18,
-    textAlign: 'center',
-  },
-
-  compassCircle: {
-    width: 86,
-    height: 86,
-    borderRadius: 43,
-    borderWidth: 3,
-    borderColor: screenColors.red,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 18,
-  },
-
-  compassText: {
-    color: screenColors.red,
-    fontSize: 28,
-    fontWeight: 'bold',
-  },
-
-  panelText: {
-    color: screenColors.navy,
-    fontSize: 15,
-    textAlign: 'center',
-    lineHeight: 24,
-    writingDirection: 'rtl',
-  },
-
-  endButton: {
-    backgroundColor: screenColors.red,
-    borderRadius: 18,
-    paddingVertical: 15,
-    alignItems: 'center',
-
-    elevation: 5,
+  card: {
+    width: '100%',
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 22,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.16,
-    shadowRadius: 6,
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 5,
   },
 
-  endButtonText: {
-    color: screenColors.white,
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#04324A',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+
+  label: {
+    fontSize: 14,
+    color: '#777',
+    marginTop: 10,
+  },
+
+  value: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1d1d1d',
+    marginTop: 4,
+  },
+
+  status: {
+    fontSize: 14,
+    color: '#04324A',
+    marginTop: 24,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+
+  button: {
+    backgroundColor: '#700003',
+    paddingVertical: 14,
+    borderRadius: 14,
+    marginTop: 24,
+    alignItems: 'center',
+  },
+
+  buttonText: {
+    color: '#ffffff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
+  },
+
+  secondaryButton: {
+    paddingVertical: 14,
+    borderRadius: 14,
+    marginTop: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#04324A',
+  },
+
+  secondaryButtonText: {
+    color: '#04324A',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
