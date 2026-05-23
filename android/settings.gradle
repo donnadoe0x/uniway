@@ -1,6 +1,23 @@
-pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
-plugins { id("com.facebook.react.settings") }
-extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
-rootProject.name = 'UniWay'
-include ':app'
-includeBuild('../node_modules/@react-native/gradle-plugin')
+pluginManagement {
+    includeBuild("../node_modules/@react-native/gradle-plugin")
+}
+
+plugins {
+    id("com.facebook.react.settings")
+}
+
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
+    ex.autolinkLibrariesFromCommand()
+}
+
+rootProject.name = "UniWay"
+
+include ":app"
+
+include ":unityLibrary"
+project(":unityLibrary").projectDir = new File(rootProject.projectDir, "unityLibrary")
+
+include ":unityLibrary:xrmanifest.androidlib"
+project(":unityLibrary:xrmanifest.androidlib").projectDir = new File(rootProject.projectDir, "unityLibrary/xrmanifest.androidlib")
+
+includeBuild("../node_modules/@react-native/gradle-plugin")

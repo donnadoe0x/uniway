@@ -1,0 +1,102 @@
+﻿#include "pch-c.h"
+
+
+#include "codegen/il2cpp-codegen-metadata.h"
+
+
+
+
+
+extern void SetNavigationTarget_Start_m0CFEEDEE4BC72DD7486B429949C561630DED0FB6 (void);
+extern void SetNavigationTarget_Update_m24DD885D08F1EA5725F6B65E56B8706FBC72EF66 (void);
+extern void SetNavigationTarget__ctor_m40AA3B1240C215E094DE629C3BFAD2C4859E6D18 (void);
+extern void RoomPoint__ctor_m5571B60E0DEFD5BFD1BC8910D95EF1B9333736E2 (void);
+extern void RoomNameEvent__ctor_mF8A9EBDF6F9027B51C06CA3EBF36F3D3AF610D8F (void);
+extern void UniWayNavigationManager_Awake_m84B5393BB19D9B0A360FE16D7F52671C1B3BFB64 (void);
+extern void UniWayNavigationManager_Start_m2C1C82B4039752C976B80486726791072DCAE57B (void);
+extern void UniWayNavigationManager_Update_mBF2537F3D7437B700180CEFA44D83193F8FCFEF8 (void);
+extern void UniWayNavigationManager_NavigateFromTo_mD0D2B3A57690AA210DA90AF650364C0C1BB99D1B (void);
+extern void UniWayNavigationManager_DrawPathToRoom_mAFBD9CCB46C5774A1DF4D90B4EAE71DE07D58711 (void);
+extern void UniWayNavigationManager_SetStartByRoomName_mF97F97D4A159EFEAA83206DA019882E1F3FAE98C (void);
+extern void UniWayNavigationManager_ClearPath_mD5FA502C318FB0B93D262160EB59629A37527B73 (void);
+extern void UniWayNavigationManager_FindRoom_m565068D84D82B21A0B762029738584E4DF562765 (void);
+extern void UniWayNavigationManager_DrawPath_m01CD90D34CF705B9E78865DCB8A7FD86B9D1EDBE (void);
+extern void UniWayNavigationManager_DrawMapWorldLine_m538CFCD51CFF721B7B0C1DCD0467DBAED8C152B1 (void);
+extern void UniWayNavigationManager_DrawARCameraPreviewLine_mA3F7FA20D04F9A7C79E6B688E17EB90440B8C409 (void);
+extern void UniWayNavigationManager_CheckArrival_m92BB5FE788A2D0BFB88E01B04CFF94733C84002C (void);
+extern void UniWayNavigationManager__ctor_mA4B4C14D70E59D59B40C637C986DCB8AB2B49C49 (void);
+extern void Readme__ctor_m69C325C4C171DCB0312B646A9034AA91EA8C39C6 (void);
+extern void Section__ctor_m5F732533E4DFC0167D965E5F5DB332E46055399B (void);
+extern void UnitySourceGeneratedAssemblyMonoScriptTypes_v1_Get_mBEB95BEB954BB63E9710BBC7AD5E78C4CB0A0033 (void);
+extern void UnitySourceGeneratedAssemblyMonoScriptTypes_v1__ctor_mE70FB23ACC1EA12ABC948AA22C2E78B2D0AA39B1 (void);
+static Il2CppMethodPointer s_methodPointers[22] = 
+{
+	SetNavigationTarget_Start_m0CFEEDEE4BC72DD7486B429949C561630DED0FB6,
+	SetNavigationTarget_Update_m24DD885D08F1EA5725F6B65E56B8706FBC72EF66,
+	SetNavigationTarget__ctor_m40AA3B1240C215E094DE629C3BFAD2C4859E6D18,
+	RoomPoint__ctor_m5571B60E0DEFD5BFD1BC8910D95EF1B9333736E2,
+	RoomNameEvent__ctor_mF8A9EBDF6F9027B51C06CA3EBF36F3D3AF610D8F,
+	UniWayNavigationManager_Awake_m84B5393BB19D9B0A360FE16D7F52671C1B3BFB64,
+	UniWayNavigationManager_Start_m2C1C82B4039752C976B80486726791072DCAE57B,
+	UniWayNavigationManager_Update_mBF2537F3D7437B700180CEFA44D83193F8FCFEF8,
+	UniWayNavigationManager_NavigateFromTo_mD0D2B3A57690AA210DA90AF650364C0C1BB99D1B,
+	UniWayNavigationManager_DrawPathToRoom_mAFBD9CCB46C5774A1DF4D90B4EAE71DE07D58711,
+	UniWayNavigationManager_SetStartByRoomName_mF97F97D4A159EFEAA83206DA019882E1F3FAE98C,
+	UniWayNavigationManager_ClearPath_mD5FA502C318FB0B93D262160EB59629A37527B73,
+	UniWayNavigationManager_FindRoom_m565068D84D82B21A0B762029738584E4DF562765,
+	UniWayNavigationManager_DrawPath_m01CD90D34CF705B9E78865DCB8A7FD86B9D1EDBE,
+	UniWayNavigationManager_DrawMapWorldLine_m538CFCD51CFF721B7B0C1DCD0467DBAED8C152B1,
+	UniWayNavigationManager_DrawARCameraPreviewLine_mA3F7FA20D04F9A7C79E6B688E17EB90440B8C409,
+	UniWayNavigationManager_CheckArrival_m92BB5FE788A2D0BFB88E01B04CFF94733C84002C,
+	UniWayNavigationManager__ctor_mA4B4C14D70E59D59B40C637C986DCB8AB2B49C49,
+	Readme__ctor_m69C325C4C171DCB0312B646A9034AA91EA8C39C6,
+	Section__ctor_m5F732533E4DFC0167D965E5F5DB332E46055399B,
+	UnitySourceGeneratedAssemblyMonoScriptTypes_v1_Get_mBEB95BEB954BB63E9710BBC7AD5E78C4CB0A0033,
+	UnitySourceGeneratedAssemblyMonoScriptTypes_v1__ctor_mE70FB23ACC1EA12ABC948AA22C2E78B2D0AA39B1,
+};
+static const int32_t s_InvokerIndices[22] = 
+{
+	16007,
+	16007,
+	16007,
+	16007,
+	16007,
+	16007,
+	16007,
+	16007,
+	12163,
+	12163,
+	12163,
+	16007,
+	10401,
+	3834,
+	16007,
+	12344,
+	16007,
+	16007,
+	16007,
+	16007,
+	27779,
+	16007,
+};
+IL2CPP_EXTERN_C const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule;
+const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule = 
+{
+	"Assembly-CSharp.dll",
+	22,
+	s_methodPointers,
+	0,
+	NULL,
+	s_InvokerIndices,
+	0,
+	NULL,
+	0,
+	NULL,
+	0,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};

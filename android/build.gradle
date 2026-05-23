@@ -1,7 +1,7 @@
 buildscript {
     ext {
         buildToolsVersion = "36.0.0"
-        minSdkVersion = 24
+        minSdkVersion = 25
         compileSdkVersion = 36
         targetSdkVersion = 36
         ndkVersion = "27.1.12297006"
@@ -25,10 +25,18 @@ allprojects {
         google()
         mavenCentral()
 
-        maven {
-            url("$rootDir/../node_modules/@react-native-async-storage/async-storage/android/local_repo")
+        flatDir {
+            dirs "$rootDir/unityLibrary/libs"
         }
     }
 }
+def uniwayNewArchEnabled = (findProperty("newArchEnabled") ?: "true").toString()
 
+gradle.beforeProject { project ->
+    project.ext.set("react.newArchEnabled", uniwayNewArchEnabled)
+}
+
+allprojects { project ->
+    project.ext.set("react.newArchEnabled", uniwayNewArchEnabled)
+}
 apply plugin: "com.facebook.react.rootproject"
