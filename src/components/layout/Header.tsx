@@ -1,34 +1,16 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  StatusBar,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Platform } from 'react-native';
 
 const Header = ({ title }: any) => {
   return (
     <View style={styles.wrapper}>
-
-      {/* Status Bar */}
-      <View style={styles.statusBar} />
-
-      {/* Header */}
       <View style={styles.container}>
-
-        {/* فراغ بدل أيقونة المنيو */}
         <View style={styles.sideSpace} />
 
         <Text style={styles.title}>{title}</Text>
 
         <View style={styles.sideSpace} />
-
       </View>
-
-      {/* الخط السفلي */}
-      <View style={styles.bottomLine} />
-
     </View>
   );
 };
@@ -38,17 +20,20 @@ export default Header;
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#ffffff',
-  },
+    paddingTop:
+      Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) + 18 : 35,
+    paddingBottom: 18,
+    marginBottom: 18,
 
-  statusBar: {
-    height: Platform.OS === 'android'
-      ? StatusBar.currentHeight
-      : 0,
-    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 8,
   },
 
   container: {
-    height: 60,
+    height: 70,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -57,18 +42,13 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: '#111111',
-    fontSize: 28,
-    fontWeight: '700',
+    color: '#1d1d1d',
+    fontSize: 34,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 
   sideSpace: {
     width: 40,
-  },
-
-  bottomLine: {
-    height: 1,
-    backgroundColor: '#d9d9d9',
   },
 });

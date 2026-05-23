@@ -37,9 +37,30 @@ export const Colors = {
   // UI
   border: '#2C3440',
   divider: '#3A4352',
+  white: '#FFFFFF',
+  black: '#1d1d1d',
+  grey: '#EAEAEA',
 
   // Status
   success: '#22C55E',
   error: '#EF4444',
   warning: '#F59E0B',
+};
+
+// This keeps your old screen code working
+export const colors = {
+  navy: Colors.primaryDark,
+  red: Colors.accent,
+  cream: Colors.cream,
+  background: Colors.background,
+  black: Colors.textPrimary,
+  grey: Colors.surface,
+  white: Colors.white,
+
+  textPrimary: Colors.textPrimary,
+  textSecondary: Colors.textSecondary,
+  textMuted: Colors.textMuted,
+  card: Colors.card,
+  surface: Colors.surface,
+  border: Colors.border,
 };

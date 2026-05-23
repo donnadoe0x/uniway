@@ -1,68 +1,145 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  I18nManager,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Header from '../../components/layout/Header';
 import BottomNav from '../../components/layout/BottomNav';
 import CustomInput from '../../components/ui/CustomInput';
 
+const STORAGE_KEY = 'BOOKMARKED_ROOMS';
+
+type Room = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+const defaultRooms: Room[] = [
+  {
+    id: '1',
+    name: 'قاعة 101',
+    description: 'الدور الأول، بجانب المدخل الرئيسي',
+  },
+  {
+    id: '2',
+    name: 'قاعة 202',
+    description: 'الدور الثاني، بجانب معمل الحاسب',
+  },
+  {
+    id: '3',
+    name: 'معمل A-12',
+    description: 'الدور الأرضي، نهاية الممر الأيسر',
+  },
+];
+
 const BookmarksScreen = ({ navigation }: any) => {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState<string>('');
+  const [rooms, setRooms] = useState<Room[]>([]);
 
-  // 🔥 MOCK DATA (later comes from API)
-  const [rooms, setRooms] = useState([
-    { id: '1', name: 'Room 101' },
-    { id: '2', name: 'Room 202' },
-    { id: '3', name: 'Lab A-12' },
-  ]);
+  useEffect(() => {
+    I18nManager.forceRTL(true);
+    loadBookmarks();
+  }, []);
 
-  // ✅ Delete function
-  const deleteRoom = (id: string) => {
-    setRooms((prev) => prev.filter((room) => room.id !== id));
+  const loadBookmarks = async (): Promise<void> => {
+    try {
+      const savedRooms = await AsyncStorage.getItem(STORAGE_KEY);
+
+      if (savedRooms) {
+        const parsedRooms: Room[] = JSON.parse(savedRooms);
+
+        if (parsedRooms.length === 0) {
+          setRooms(defaultRooms);
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(defaultRooms));
+        } else {
+          setRooms(parsedRooms);
+        }
+      } else {
+        setRooms(defaultRooms);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(defaultRooms));
+      }
+    } catch (error) {
+      console.log('Error loading bookmarks:', error);
+      setRooms(defaultRooms);
+    }
   };
 
-  // 🔍 Filter rooms
+  const saveBookmarks = async (updatedRooms: Room[]): Promise<void> => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRooms));
+    } catch (error) {
+      console.log('Error saving bookmarks:', error);
+    }
+  };
+
+  const deleteRoom = async (id: string): Promise<void> => {
+    const updatedRooms = rooms.filter((room) => room.id !== id);
+    setRooms(updatedRooms);
+    await saveBookmarks(updatedRooms);
+  };
+
+  const handleRoomPress = (room: Room): void => {
+    navigation.navigate('ARNavigation', {
+      room: room.name,
+      description: room.description,
+    });
+  };
+
   const filteredRooms = rooms.filter((room) =>
-    room.name.toLowerCase().includes(search.toLowerCase())
+    `${room.name} ${room.description}`.toLowerCase().includes(search.toLowerCase())
   );
 
-  const renderItem = ({ item }: any) => (
-    <View style={styles.card}>
-      <Text style={styles.roomText}>{item.name}</Text>
-
-      <TouchableOpacity onPress={() => deleteRoom(item.id)}>
-        <Text style={styles.delete}>Delete</Text>
+  const renderItem = ({ item }: { item: Room }) => (
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.8}
+      onPress={() => handleRoomPress(item)}
+    >
+      <TouchableOpacity
+        style={styles.deleteContainer}
+        onPress={() => deleteRoom(item.id)}
+      >
+        <Text style={styles.delete}>حذف</Text>
       </TouchableOpacity>
-    </View>
+
+      <View style={styles.textContainer}>
+        <Text style={styles.roomTitle}>{item.name}</Text>
+        <Text style={styles.roomDescription}>{item.description}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <Header title="Bookmarks" />
+      <Header title="القاعات المحفوظة" />
 
-      {/* 🔍 Search */}
       <View style={styles.searchContainer}>
-        <CustomInput
-          placeholder="Search bookmarked rooms..."
-          value={search}
-          onChangeText={setSearch}
-        />
+        <View style={styles.searchBox}>
+          <CustomInput
+            placeholder="ابحث عن القاعات..."
+            value={search}
+            onChangeText={setSearch}
+          />
+        </View>
       </View>
 
-      {/* 📋 Rooms List */}
       <FlatList
         data={filteredRooms}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>لا توجد قاعات محفوظة</Text>
+        }
       />
 
-      {/* 🔻 Bottom Nav */}
       <BottomNav navigation={navigation} />
     </View>
   );
@@ -73,25 +150,81 @@ export default BookmarksScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0B0F1A',
+    backgroundColor: '#f7f7f7',
   },
   searchContainer: {
+    backgroundColor: '#f7f7f7',
     paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 20,
+    
   },
-  card: {
-    backgroundColor: '#1A1F2E',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  searchBox: {
+    backgroundColor: '#EAEAEA',
+    borderRadius: 100,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    justifyContent: 'center',
   },
-  roomText: {
-    color: '#fff',
-    fontSize: 16,
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 100,
+  },
+card: {
+  backgroundColor: '#700003',
+  padding: 16,
+  borderRadius: 20,
+  marginBottom: 20,
+
+  // layout
+  flexDirection: 'row',
+  alignItems: 'flex-start',
+  direction: 'ltr',
+
+  // 🔥 REAL shadow (Android)
+  elevation: 12,
+
+  // 🔥 extra depth (iOS)
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 6 },
+  shadowOpacity: 0.25,
+  shadowRadius: 6,
+},
+  deleteContainer: {
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    marginRight: 12,
+    paddingTop: 2,
+  },
+  textContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  roomTitle: {
+    color: '#f3f1f5',
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  roomDescription: {
+    color: '#f3f1f5',
+    fontSize: 18,
+    lineHeight: 18,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   delete: {
-    color: '#FF5252',
+    color: '#f3f1f5',
     fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'left',
+  },
+  emptyText: {
+    color: '#4B4B4B',
+    textAlign: 'center',
+    marginTop: 24,
+    fontSize: 16,
   },
 });

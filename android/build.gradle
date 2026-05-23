@@ -1,27 +1,42 @@
-buildscript { 
+buildscript {
     ext {
         buildToolsVersion = "36.0.0"
-        minSdkVersion = 24
+        minSdkVersion = 25
         compileSdkVersion = 36
         targetSdkVersion = 36
-        ndkVersion = "30.0.14904198"
+        ndkVersion = "27.1.12297006"
         kotlinVersion = "2.1.20"
     }
+
     repositories {
         google()
         mavenCentral()
     }
+
     dependencies {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
     }
-    allprojects {
+}
+
+def uniwayNewArchEnabled = (findProperty("newArchEnabled") ?: "true").toString()
+
+gradle.beforeProject { project ->
+    project.ext.set("react.newArchEnabled", uniwayNewArchEnabled)
+}
+
+allprojects { project ->
+    project.ext.set("react.newArchEnabled", uniwayNewArchEnabled)
+
     repositories {
         google()
         mavenCentral()
+
+        flatDir {
+            dirs "$rootDir/unityLibrary/libs"
+        }
     }
-}
 }
 
 apply plugin: "com.facebook.react.rootproject"
