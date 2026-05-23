@@ -20,7 +20,15 @@ buildscript {
     }
 }
 
-allprojects {
+def uniwayNewArchEnabled = (findProperty("newArchEnabled") ?: "true").toString()
+
+gradle.beforeProject { project ->
+    project.ext.set("react.newArchEnabled", uniwayNewArchEnabled)
+}
+
+allprojects { project ->
+    project.ext.set("react.newArchEnabled", uniwayNewArchEnabled)
+
     repositories {
         google()
         mavenCentral()
@@ -30,13 +38,5 @@ allprojects {
         }
     }
 }
-def uniwayNewArchEnabled = (findProperty("newArchEnabled") ?: "true").toString()
 
-gradle.beforeProject { project ->
-    project.ext.set("react.newArchEnabled", uniwayNewArchEnabled)
-}
-
-allprojects { project ->
-    project.ext.set("react.newArchEnabled", uniwayNewArchEnabled)
-}
 apply plugin: "com.facebook.react.rootproject"
