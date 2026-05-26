@@ -1,102 +1,64 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  I18nManager,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 import Header from '../../components/layout/Header';
 import BottomNav from '../../components/layout/BottomNav';
 import CustomInput from '../../components/ui/CustomInput';
-
-const STORAGE_KEY = 'BOOKMARKED_ROOMS';
-
-type Room = {
-  id: string;
-  name: string;
-  description: string;
-};
-
-const defaultRooms: Room[] = [
-  {
-    id: '1',
-    name: 'قاعة 101',
-    description: 'الدور الأول، بجانب المدخل الرئيسي',
-  },
-  {
-    id: '2',
-    name: 'قاعة 202',
-    description: 'الدور الثاني، بجانب معمل الحاسب',
-  },
-  {
-    id: '3',
-    name: 'معمل A-12',
-    description: 'الدور الأرضي، نهاية الممر الأيسر',
-  },
-];
+import { fetchBookmarks, BookmarkRoom } from '../../services/api/bookmarksApi';
 
 const BookmarksScreen = ({ navigation }: any) => {
   const [search, setSearch] = useState<string>('');
-  const [rooms, setRooms] = useState<Room[]>([]);
-
-  useEffect(() => {
-    I18nManager.forceRTL(true);
-    loadBookmarks();
-  }, []);
+  const [rooms, setRooms] = useState<BookmarkRoom[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const loadBookmarks = async (): Promise<void> => {
     try {
-      const savedRooms = await AsyncStorage.getItem(STORAGE_KEY);
-
-      if (savedRooms) {
-        const parsedRooms: Room[] = JSON.parse(savedRooms);
-
-        if (parsedRooms.length === 0) {
-          setRooms(defaultRooms);
-          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(defaultRooms));
-        } else {
-          setRooms(parsedRooms);
-        }
-      } else {
-        setRooms(defaultRooms);
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(defaultRooms));
-      }
+      setLoading(true);
+      const savedRooms = await fetchBookmarks();
+      setRooms(savedRooms);
     } catch (error) {
-      console.log('Error loading bookmarks:', error);
-      setRooms(defaultRooms);
+      Alert.alert('خطأ', 'تعذر تحميل القاعات المحفوظة من الخادم');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const saveBookmarks = async (updatedRooms: Room[]): Promise<void> => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRooms));
-    } catch (error) {
-      console.log('Error saving bookmarks:', error);
-    }
-  };
+  useFocusEffect(
+    useCallback(() => {
+      loadBookmarks();
+    }, [])
+  );
 
-  const deleteRoom = async (id: string): Promise<void> => {
-    const updatedRooms = rooms.filter((room) => room.id !== id);
-    setRooms(updatedRooms);
-    await saveBookmarks(updatedRooms);
-  };
-
-  const handleRoomPress = (room: Room): void => {
+  const handleRoomPress = (room: BookmarkRoom): void => {
     navigation.navigate('ARNavigation', {
       room: room.name,
       description: room.description,
     });
   };
 
+  const handleDelete = (): void => {
+    Alert.alert(
+      'غير متاح حاليًا',
+      'لا يوجد مسار حذف في الباكند حاليًا. نحتاج DELETE endpoint لحذف القاعات من المفضلة.'
+    );
+  };
+
   const filteredRooms = rooms.filter((room) =>
-    `${room.name} ${room.description}`.toLowerCase().includes(search.toLowerCase())
+    `${room.name} ${room.description}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
   );
 
-  const renderItem = ({ item }: { item: Room }) => (
+  const renderItem = ({ item }: { item: BookmarkRoom }) => (
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.8}
@@ -104,7 +66,7 @@ const BookmarksScreen = ({ navigation }: any) => {
     >
       <TouchableOpacity
         style={styles.deleteContainer}
-        onPress={() => deleteRoom(item.id)}
+        onPress={handleDelete}
       >
         <Text style={styles.delete}>حذف</Text>
       </TouchableOpacity>
@@ -130,15 +92,22 @@ const BookmarksScreen = ({ navigation }: any) => {
         </View>
       </View>
 
-      <FlatList
-        data={filteredRooms}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>لا توجد قاعات محفوظة</Text>
-        }
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#700003" />
+          <Text style={styles.loadingText}>جارٍ تحميل القاعات المحفوظة...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredRooms}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>لا توجد قاعات محفوظة</Text>
+          }
+        />
+      )}
 
       <BottomNav navigation={navigation} />
     </View>
@@ -157,7 +126,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 20,
-    
   },
   searchBox: {
     backgroundColor: '#EAEAEA',
@@ -168,28 +136,38 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
-card: {
-  backgroundColor: '#700003',
-  padding: 16,
-  borderRadius: 20,
-  marginBottom: 20,
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 120,
+  },
+  loadingText: {
+    marginTop: 12,
+    color: '#700003',
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  card: {
+    backgroundColor: '#700003',
+    padding: 16,
+    borderRadius: 20,
+    marginBottom: 20,
 
-  // layout
-  flexDirection: 'row',
-  alignItems: 'flex-start',
-  direction: 'ltr',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    direction: 'ltr',
 
-  // 🔥 REAL shadow (Android)
-  elevation: 12,
+    elevation: 12,
 
-  // 🔥 extra depth (iOS)
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 6 },
-  shadowOpacity: 0.25,
-  shadowRadius: 6,
-},
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+  },
   deleteContainer: {
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
@@ -211,7 +189,7 @@ card: {
   roomDescription: {
     color: '#f3f1f5',
     fontSize: 18,
-    lineHeight: 18,
+    lineHeight: 24,
     textAlign: 'right',
     writingDirection: 'rtl',
   },
