@@ -120686,59 +120686,88 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.getDeviceId = exports.fetchBookmarks = exports.addBookmark = void 0;
+  exports.fetchBookmarks = exports.addBookmark = void 0;
   var _asyncToGenerator2 = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[1], "@babel/runtime/helpers/asyncToGenerator"));
   var _asyncStorage = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[2], "@react-native-async-storage/async-storage"));
   var BASE_URL = 'https://rayouf0-uniway-backend-core.hf.space';
   var DEVICE_ID_KEY = 'UNIWAY_DEVICE_ID';
-  var getDeviceId = exports.getDeviceId = /*#__PURE__*/function () {
+  var REQUEST_TIMEOUT = 10000;
+  var getDeviceId = /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2.default)(function* () {
-      var savedId = yield _asyncStorage.default.getItem(DEVICE_ID_KEY);
-      if (savedId) {
-        return savedId;
+      try {
+        var savedId = yield _asyncStorage.default.getItem(DEVICE_ID_KEY);
+        if (savedId) {
+          return savedId;
+        }
+        var newId = `device_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+        yield _asyncStorage.default.setItem(DEVICE_ID_KEY, newId);
+        return newId;
+      } catch (error) {
+        console.log('Device ID error:', error);
+        return `device_${Date.now()}`;
       }
-      var newId = `device_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-      yield _asyncStorage.default.setItem(DEVICE_ID_KEY, newId);
-      return newId;
     });
     return function getDeviceId() {
       return _ref.apply(this, arguments);
     };
   }();
-  var normalizeBookmark = item => {
-    var id = item.roomId || item.room_id || item.id || item.name || item.roomName || item.classroomName || 'unknown-room';
-    var name = item.name || item.roomName || item.classroomName || item.roomId || item.room_id || id;
-    var description = item.description || item.location || 'موقع محفوظ في المفضلة';
-    return {
-      id: String(id),
-      name: String(name),
-      description: String(description)
+  var requestWithTimeout = /*#__PURE__*/function () {
+    var _ref2 = (0, _asyncToGenerator2.default)(function* (url, options, timeout = REQUEST_TIMEOUT) {
+      var controller = new AbortController();
+      var timeoutId = setTimeout(() => {
+        controller.abort();
+      }, timeout);
+      try {
+        return yield fetch(url, {
+          ...options,
+          signal: controller.signal
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    });
+    return function requestWithTimeout(_x, _x2) {
+      return _ref2.apply(this, arguments);
     };
-  };
+  }();
   var fetchBookmarks = exports.fetchBookmarks = /*#__PURE__*/function () {
-    var _ref2 = (0, _asyncToGenerator2.default)(function* () {
+    var _ref3 = (0, _asyncToGenerator2.default)(function* () {
       var deviceId = yield getDeviceId();
-      var response = yield fetch(`${BASE_URL}/bookmarks/my`, {
+      var response = yield requestWithTimeout(`${BASE_URL}/bookmarks/my`, {
         method: 'GET',
         headers: {
           'x-device-id': deviceId
         }
       });
       if (!response.ok) {
+        var errorText = yield response.text();
+        console.log('Fetch bookmarks failed:', response.status, errorText);
         throw new Error('Failed to fetch bookmarks');
       }
-      var data = yield response.json();
-      var list = Array.isArray(data) ? data : Array.isArray(data.bookmarks) ? data.bookmarks : Array.isArray(data.data) ? data.data : [];
-      return list.map(normalizeBookmark);
+      var result = yield response.json();
+      var data = Array.isArray(result.data) ? result.data : [];
+      return data.map(item => {
+        var roomId = String(item.roomId || item.classId || item.bookmarkDocId || 'unknown-room');
+        var className = String(item.className || item.classname || item.name || roomId);
+        return {
+          id: String(item.bookmarkDocId || roomId),
+          roomId,
+          name: className,
+          className,
+          buildingId: String(item.buildingId || 'Not Specified'),
+          floorNum: String(item.floorNum || 'Not Specified'),
+          description: String(item.description || `المبنى: ${item.buildingId || 'غير محدد'} - الدور: ${item.floorNum || 'غير محدد'}`)
+        };
+      });
     });
     return function fetchBookmarks() {
-      return _ref2.apply(this, arguments);
+      return _ref3.apply(this, arguments);
     };
   }();
   var addBookmark = exports.addBookmark = /*#__PURE__*/function () {
-    var _ref3 = (0, _asyncToGenerator2.default)(function* (roomId) {
+    var _ref4 = (0, _asyncToGenerator2.default)(function* (roomId) {
       var deviceId = yield getDeviceId();
-      var response = yield fetch(`${BASE_URL}/bookmarks/add`, {
+      var response = yield requestWithTimeout(`${BASE_URL}/bookmarks/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120749,11 +120778,13 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         })
       });
       if (!response.ok) {
+        var errorText = yield response.text();
+        console.log('Add bookmark failed:', response.status, errorText);
         throw new Error('Failed to add bookmark');
       }
     });
-    return function addBookmark(_x) {
-      return _ref3.apply(this, arguments);
+    return function addBookmark(_x3) {
+      return _ref4.apply(this, arguments);
     };
   }();
 },862,[1,174,850],"src/services/api/bookmarksApi.ts");
@@ -121363,6 +121394,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           var savedRooms = yield (0, _$$_REQUIRE(_dependencyMap[9], "../../services/api/bookmarksApi").fetchBookmarks)();
           setRooms(savedRooms);
         } catch (error) {
+          console.log('Bookmarks screen error:', error);
           _reactNative.Alert.alert('خطأ', 'تعذر تحميل القاعات المحفوظة من الخادم');
         } finally {
           setLoading(false);
@@ -121378,13 +121410,16 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     var handleRoomPress = room => {
       navigation.navigate('ARNavigation', {
         room: room.name,
+        destinationRoom: room.name,
+        selectedRoom: room.name,
+        roomId: room.roomId,
         description: room.description
       });
     };
     var handleDelete = () => {
       _reactNative.Alert.alert('غير متاح حاليًا', 'لا يوجد مسار حذف في الباكند حاليًا. نحتاج DELETE endpoint لحذف القاعات من المفضلة.');
     };
-    var filteredRooms = rooms.filter(room => `${room.name} ${room.description}`.toLowerCase().includes(search.toLowerCase()));
+    var filteredRooms = rooms.filter(room => `${room.name} ${room.roomId} ${room.description} ${room.buildingId} ${room.floorNum}`.toLowerCase().includes(search.toLowerCase()));
     var renderItem = ({
       item
     }) => /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.TouchableOpacity, {
@@ -121406,6 +121441,9 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
           style: styles.roomDescription,
           children: item.description
+        }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.Text, {
+          style: styles.roomMeta,
+          children: ["\u0627\u0644\u0645\u0628\u0646\u0649: ", item.buildingId, " | \u0627\u0644\u062F\u0648\u0631: ", item.floorNum]
         })]
       })]
     });
@@ -121437,9 +121475,15 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         keyExtractor: (item, index) => `${item.id}-${index}`,
         renderItem: renderItem,
         contentContainerStyle: styles.listContent,
-        ListEmptyComponent: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
-          style: styles.emptyText,
-          children: "\u0644\u0627 \u062A\u0648\u062C\u062F \u0642\u0627\u0639\u0627\u062A \u0645\u062D\u0641\u0648\u0638\u0629"
+        ListEmptyComponent: /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+          style: styles.emptyContainer,
+          children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.emptyText,
+            children: "\u0644\u0627 \u062A\u0648\u062C\u062F \u0642\u0627\u0639\u0627\u062A \u0645\u062D\u0641\u0648\u0638\u0629"
+          }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.emptySubText,
+            children: "\u0627\u062D\u0641\u0638\u064A \u0642\u0627\u0639\u0629 \u0645\u0646 \u0634\u0627\u0634\u0629 \u062A\u0623\u0643\u064A\u062F \u0627\u0644\u0645\u0648\u0642\u0639 \u0644\u062A\u0638\u0647\u0631 \u0647\u0646\u0627."
+          })]
         })
       }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_BottomNav.default, {
         navigation: navigation
@@ -121519,8 +121563,15 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     },
     roomDescription: {
       color: '#f3f1f5',
-      fontSize: 18,
+      fontSize: 17,
       lineHeight: 24,
+      textAlign: 'right',
+      writingDirection: 'rtl'
+    },
+    roomMeta: {
+      color: '#FBEFD5',
+      fontSize: 13,
+      marginTop: 8,
       textAlign: 'right',
       writingDirection: 'rtl'
     },
@@ -121530,11 +121581,24 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       fontSize: 16,
       textAlign: 'left'
     },
+    emptyContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 40,
+      paddingHorizontal: 20
+    },
     emptyText: {
       color: '#4B4B4B',
       textAlign: 'center',
-      marginTop: 24,
-      fontSize: 16
+      fontSize: 17,
+      fontWeight: '700'
+    },
+    emptySubText: {
+      color: '#777',
+      textAlign: 'center',
+      marginTop: 8,
+      fontSize: 14,
+      lineHeight: 22
     }
   });
 },865,[1,174,32,71,2,602,603,866,178,862,723],"src/screens/bookmarks/BookmarksScreen.tsx");
