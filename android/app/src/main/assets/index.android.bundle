@@ -1288,7 +1288,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
    */
 
   _reactNative.AppRegistry.registerComponent(_$$_REQUIRE(_dependencyMap[3], "./app.json").name, () => _App.default);
-},0,[1,2,599,979],"index.js");
+},0,[1,2,599,980],"index.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   function _interopRequireDefault(e) {
     return e && e.__esModule ? e : {
@@ -100390,7 +100390,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   };
   var _default = exports.default = AppNavigator;
-},600,[1,71,601,849,861,862,863,864,866,867,178,868,723],"src/navigation/AppNavigator.tsx");
+},600,[1,71,601,849,861,863,864,865,867,868,178,869,723],"src/navigation/AppNavigator.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -120624,10 +120624,11 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     value: true
   });
   exports.default = void 0;
-  var _react = _interopRequireWildcard(_$$_REQUIRE(_dependencyMap[1], "react"));
-  var _reactNative = _$$_REQUIRE(_dependencyMap[2], "react-native");
-  var _Header = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[3], "../../components/layout/Header"));
-  var _jsxRuntime = _$$_REQUIRE(_dependencyMap[4], "react/jsx-runtime");
+  var _asyncToGenerator2 = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[1], "@babel/runtime/helpers/asyncToGenerator"));
+  var _react = _interopRequireWildcard(_$$_REQUIRE(_dependencyMap[2], "react"));
+  var _reactNative = _$$_REQUIRE(_dependencyMap[3], "react-native");
+  var _Header = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[4], "../../components/layout/Header"));
+  var _jsxRuntime = _$$_REQUIRE(_dependencyMap[5], "react/jsx-runtime");
   var _jsxFileName = "C:\\Users\\dan\\Desktop\\graduation project\\UniWay\\src\\screens\\confirm\\ConfirmScreen.tsx";
   function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function (e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != typeof e && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
   var ConfirmScreen = ({
@@ -120635,11 +120636,27 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     route
   }) => {
     var detectedRoom = route?.params?.detectedRoom || 'قاعة غير محددة';
+    var saveDetectedRoom = /*#__PURE__*/function () {
+      var _ref = (0, _asyncToGenerator2.default)(function* () {
+        try {
+          yield (0, _$$_REQUIRE(_dependencyMap[6], "../../services/api/bookmarksApi").addBookmark)(detectedRoom);
+          _reactNative.Alert.alert('تم الحفظ', 'تمت إضافة القاعة إلى المفضلة');
+        } catch (error) {
+          _reactNative.Alert.alert('خطأ', 'تعذر حفظ القاعة في المفضلة');
+        }
+      });
+      return function saveDetectedRoom() {
+        return _ref.apply(this, arguments);
+      };
+    }();
     (0, _react.useEffect)(() => {
       _reactNative.Alert.alert('تم تحديد الموقع', `الموقع الحالي: ${detectedRoom}`, [{
         text: 'إلغاء',
         style: 'cancel',
-        onPress: () => navigation.goBack() // 🔥 go back to capture
+        onPress: () => navigation.goBack()
+      }, {
+        text: 'حفظ في المفضلة',
+        onPress: saveDetectedRoom
       }, {
         text: 'تأكيد',
         onPress: () => navigation.navigate('ARNavigation', {
@@ -120663,7 +120680,83 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       backgroundColor: '#f7f7f7'
     }
   });
-},861,[1,71,2,602,178],"src/screens/confirm/ConfirmScreen.tsx");
+},861,[1,174,71,2,602,178,862],"src/screens/confirm/ConfirmScreen.tsx");
+__d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
+  var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.getDeviceId = exports.fetchBookmarks = exports.addBookmark = void 0;
+  var _asyncToGenerator2 = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[1], "@babel/runtime/helpers/asyncToGenerator"));
+  var _asyncStorage = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[2], "@react-native-async-storage/async-storage"));
+  var BASE_URL = 'https://rayouf0-uniway-backend-core.hf.space';
+  var DEVICE_ID_KEY = 'UNIWAY_DEVICE_ID';
+  var getDeviceId = exports.getDeviceId = /*#__PURE__*/function () {
+    var _ref = (0, _asyncToGenerator2.default)(function* () {
+      var savedId = yield _asyncStorage.default.getItem(DEVICE_ID_KEY);
+      if (savedId) {
+        return savedId;
+      }
+      var newId = `device_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+      yield _asyncStorage.default.setItem(DEVICE_ID_KEY, newId);
+      return newId;
+    });
+    return function getDeviceId() {
+      return _ref.apply(this, arguments);
+    };
+  }();
+  var normalizeBookmark = item => {
+    var id = item.roomId || item.room_id || item.id || item.name || item.roomName || item.classroomName || 'unknown-room';
+    var name = item.name || item.roomName || item.classroomName || item.roomId || item.room_id || id;
+    var description = item.description || item.location || 'موقع محفوظ في المفضلة';
+    return {
+      id: String(id),
+      name: String(name),
+      description: String(description)
+    };
+  };
+  var fetchBookmarks = exports.fetchBookmarks = /*#__PURE__*/function () {
+    var _ref2 = (0, _asyncToGenerator2.default)(function* () {
+      var deviceId = yield getDeviceId();
+      var response = yield fetch(`${BASE_URL}/bookmarks/my`, {
+        method: 'GET',
+        headers: {
+          'x-device-id': deviceId
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch bookmarks');
+      }
+      var data = yield response.json();
+      var list = Array.isArray(data) ? data : Array.isArray(data.bookmarks) ? data.bookmarks : Array.isArray(data.data) ? data.data : [];
+      return list.map(normalizeBookmark);
+    });
+    return function fetchBookmarks() {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+  var addBookmark = exports.addBookmark = /*#__PURE__*/function () {
+    var _ref3 = (0, _asyncToGenerator2.default)(function* (roomId) {
+      var deviceId = yield getDeviceId();
+      var response = yield fetch(`${BASE_URL}/bookmarks/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-device-id': deviceId
+        },
+        body: JSON.stringify({
+          roomId
+        })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add bookmark');
+      }
+    });
+    return function addBookmark(_x) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
+},862,[1,174,850],"src/services/api/bookmarksApi.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -120802,7 +120895,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       fontWeight: '500'
     }
   });
-},862,[1,32,71,2,602,603,178],"src/screens/search/SearchScreen.tsx");
+},863,[1,32,71,2,602,603,178],"src/screens/search/SearchScreen.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -120812,163 +120905,426 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var _slicedToArray2 = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[1], "@babel/runtime/helpers/slicedToArray"));
   var _react = _interopRequireWildcard(_$$_REQUIRE(_dependencyMap[2], "react"));
   var _reactNative = _$$_REQUIRE(_dependencyMap[3], "react-native");
-  var _jsxRuntime = _$$_REQUIRE(_dependencyMap[4], "react/jsx-runtime");
+  var _Header = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[4], "../../components/layout/Header"));
+  var _jsxRuntime = _$$_REQUIRE(_dependencyMap[5], "react/jsx-runtime");
   var _jsxFileName = "C:\\Users\\dan\\Desktop\\graduation project\\UniWay\\src\\screens\\ar\\ARNavigationScreen.tsx";
   function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function (e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != typeof e && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
-  var UnityModule = _reactNative.NativeModules.UnityModule;
+  var COLORS = {
+    primary: '#700003',
+    secondary: '#04324A',
+    background: '#f7f7f7',
+    dark: '#1d1d1d',
+    accent: '#FBEFD5',
+    white: '#ffffff',
+    gray: '#6b7280',
+    lightGray: '#e5e7eb',
+    success: '#0f766e'
+  };
   var ARNavigationScreen = ({
     route,
     navigation
   }) => {
-    var _useState = (0, _react.useState)('Preparing AR navigation...'),
+    var _useState = (0, _react.useState)(false),
       _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      status = _useState2[0],
-      setStatus = _useState2[1];
-    var startRoom = (0, _react.useMemo)(() => {
-      return route?.params?.startRoom || route?.params?.detectedRoom || 'room D 101';
-    }, [route?.params]);
-    var destinationRoom = (0, _react.useMemo)(() => {
-      return route?.params?.destinationRoom || route?.params?.selectedRoom || route?.params?.room || 'room D 101';
-    }, [route?.params]);
-    var openUnityAR = () => {
-      if ("android" !== 'android') {
-        setStatus('Unity AR is currently integrated for Android only.');
-        _reactNative.Alert.alert('Android only', 'Unity AR integration is currently available on Android only.');
-        return;
-      }
-      if (!UnityModule) {
-        setStatus('UnityModule is not available. Rebuild the Android app.');
-        _reactNative.Alert.alert('UnityModule not found', 'Make sure the Android native Unity module is added, then rebuild the app.');
-        return;
-      }
-      try {
-        setStatus(`Opening AR route from ${startRoom} to ${destinationRoom}...`);
-        UnityModule.openUnity(startRoom, destinationRoom);
-      } catch (error) {
-        console.log('Failed to open Unity:', error);
-        setStatus('Failed to open Unity AR.');
-        _reactNative.Alert.alert('Error', 'Failed to open Unity AR scene.');
-      }
+      navigationStarted = _useState2[0],
+      setNavigationStarted = _useState2[1];
+    var _useState3 = (0, _react.useState)(false),
+      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
+      arrived = _useState4[0],
+      setArrived = _useState4[1];
+    var destinationRoom = route?.params?.room || route?.params?.destinationRoom || route?.params?.selectedRoom || 'قاعة غير محددة';
+    var currentRoom = route?.params?.currentRoom || route?.params?.detectedRoom || 'موقعك الحالي';
+    var routeSteps = (0, _react.useMemo)(() => [`ابدئي من: ${currentRoom}`, 'اتبعي المسار الموضح في الممر الرئيسي', 'انعطفي عند نقطة التوجيه التالية', `الوصول إلى: ${destinationRoom}`], [currentRoom, destinationRoom]);
+    var handleStartNavigation = () => {
+      setNavigationStarted(true);
+      setArrived(false);
+
+      /*
+        REAL UNITY AR LAUNCH - COMMENTED FOR DEMO SAFETY
+          The real AR module is integrated, but it may crash on the emulator because
+        the emulator architecture may not support the Unity ARM64 AR module.
+          Later, when testing on a supported Android ARCore device, uncomment this:
+          import { NativeModules } from 'react-native';
+          NativeModules.UnityModule.openUnity(destinationRoom);
+          Or if your native method name is different:
+          NativeModules.UnityModule.startUnity(destinationRoom);
+        NativeModules.UnityModule.openAR(destinationRoom);
+      */
+
+      _reactNative.Alert.alert('تم تشغيل التوجيه', `تم اختيار الوجهة: ${destinationRoom}\n\nسيتم عرض مسار تجريبي آمن للعرض.`);
     };
-    (0, _react.useEffect)(() => {
-      openUnityAR();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-    return /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.SafeAreaView, {
-      style: styles.container,
-      children: /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
-        style: styles.card,
-        children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
-          style: styles.title,
-          children: "AR Navigation"
-        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
-          style: styles.label,
-          children: "Starting point"
-        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
-          style: styles.value,
-          children: startRoom
-        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
-          style: styles.label,
-          children: "Destination"
-        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
-          style: styles.value,
-          children: destinationRoom
-        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
-          style: styles.status,
-          children: status
+    var handleArrived = () => {
+      setArrived(true);
+      _reactNative.Alert.alert('تم الوصول', `لقد وصلتِ إلى ${destinationRoom}`);
+    };
+    return /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.SafeAreaView, {
+      style: styles.safeArea,
+      children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_Header.default, {
+        title: "UniWay"
+      }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.ScrollView, {
+        contentContainerStyle: styles.container,
+        children: [/*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+          style: styles.titleBox,
+          children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.title,
+            children: "AR Navigation"
+          }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.subtitle,
+            children: "\u0627\u0644\u062A\u0648\u062C\u064A\u0647 \u0625\u0644\u0649 \u0627\u0644\u0648\u062C\u0647\u0629 \u0627\u0644\u0645\u062E\u062A\u0627\u0631\u0629 \u062F\u0627\u062E\u0644 \u0627\u0644\u0645\u0628\u0646\u0649"
+          })]
+        }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+          style: styles.card,
+          children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.label,
+            children: "\u0627\u0644\u0645\u0648\u0642\u0639 \u0627\u0644\u062D\u0627\u0644\u064A"
+          }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.roomText,
+            children: currentRoom
+          }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+            style: styles.divider
+          }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.label,
+            children: "\u0627\u0644\u0648\u062C\u0647\u0629"
+          }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.destinationText,
+            children: destinationRoom
+          })]
+        }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+          style: styles.mapCard,
+          children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.sectionTitle,
+            children: "\u0645\u0639\u0627\u064A\u0646\u0629 \u0627\u0644\u0645\u0633\u0627\u0631"
+          }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+            style: styles.routePreview,
+            children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+              style: styles.pointStart,
+              children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+                style: styles.pointText,
+                children: "Start"
+              })
+            }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+              style: styles.routeLine,
+              children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+                style: styles.routeDot
+              }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+                style: styles.routeDot
+              }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+                style: styles.routeDot
+              })]
+            }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+              style: styles.pointEnd,
+              children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+                style: styles.pointText,
+                children: "Room"
+              })
+            })]
+          }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.previewNote,
+            children: "\u0647\u0630\u0647 \u0645\u0639\u0627\u064A\u0646\u0629 \u0622\u0645\u0646\u0629 \u0644\u0644\u0645\u0633\u0627\u0631 \u0623\u062B\u0646\u0627\u0621 \u0627\u0644\u0627\u062E\u062A\u0628\u0627\u0631 \u0639\u0644\u0649 \u0627\u0644\u0645\u062D\u0627\u0643\u064A. \u0633\u064A\u062A\u0645 \u0627\u0633\u062A\u062E\u062F\u0627\u0645 Unity AR \u0639\u0646\u062F \u0627\u0644\u062A\u0634\u063A\u064A\u0644 \u0639\u0644\u0649 \u0628\u064A\u0626\u0629 Android \u0645\u0646\u0627\u0633\u0628\u0629."
+          })]
+        }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+          style: styles.stepsCard,
+          children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.sectionTitle,
+            children: "\u062E\u0637\u0648\u0627\u062A \u0627\u0644\u062A\u0648\u062C\u064A\u0647"
+          }), routeSteps.map((step, index) => /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+            style: styles.stepRow,
+            children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+              style: styles.stepCircle,
+              children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+                style: styles.stepNumber,
+                children: index + 1
+              })
+            }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+              style: styles.stepText,
+              children: step
+            })]
+          }, index))]
+        }), navigationStarted && !arrived && /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+          style: styles.statusBox,
+          children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.statusTitle,
+            children: "\u0627\u0644\u062A\u0648\u062C\u064A\u0647 \u0642\u064A\u062F \u0627\u0644\u062A\u0634\u063A\u064A\u0644"
+          }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.Text, {
+            style: styles.statusText,
+            children: ["\u0627\u062A\u0628\u0639\u064A \u0627\u0644\u0645\u0633\u0627\u0631 \u062D\u062A\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 ", destinationRoom]
+          })]
+        }), arrived && /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+          style: styles.arrivedBox,
+          children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.arrivedTitle,
+            children: "\u062A\u0645 \u0627\u0644\u0648\u0635\u0648\u0644 \u0628\u0646\u062C\u0627\u062D"
+          }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.Text, {
+            style: styles.arrivedText,
+            children: ["\u0648\u0635\u0644\u062A\u0650 \u0625\u0644\u0649 ", destinationRoom]
+          })]
         }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.TouchableOpacity, {
-          style: styles.button,
-          onPress: openUnityAR,
+          style: styles.primaryButton,
+          onPress: handleStartNavigation,
+          activeOpacity: 0.85,
           children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
-            style: styles.buttonText,
-            children: "Open AR Again"
+            style: styles.primaryButtonText,
+            children: navigationStarted ? 'إعادة تشغيل التوجيه' : 'Start Navigation'
           })
         }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.TouchableOpacity, {
           style: styles.secondaryButton,
-          onPress: () => navigation?.goBack?.(),
+          onPress: handleArrived,
+          activeOpacity: 0.85,
           children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
             style: styles.secondaryButtonText,
-            children: "Go Back"
+            children: "Simulate Arrival"
+          })
+        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.TouchableOpacity, {
+          style: styles.backButton,
+          onPress: () => navigation.goBack(),
+          activeOpacity: 0.85,
+          children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+            style: styles.backButtonText,
+            children: "\u0631\u062C\u0648\u0639"
           })
         })]
-      })
+      })]
     });
   };
   var _default = exports.default = ARNavigationScreen;
   var styles = _reactNative.StyleSheet.create({
-    container: {
+    safeArea: {
       flex: 1,
-      backgroundColor: '#f7f7f7',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 20
+      backgroundColor: COLORS.background
+    },
+    container: {
+      padding: 20,
+      paddingBottom: 40
+    },
+    titleBox: {
+      marginBottom: 18
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: '800',
+      color: COLORS.secondary
+    },
+    subtitle: {
+      marginTop: 6,
+      fontSize: 15,
+      color: COLORS.gray,
+      lineHeight: 22
     },
     card: {
-      width: '100%',
-      backgroundColor: '#ffffff',
+      backgroundColor: COLORS.white,
       borderRadius: 20,
-      padding: 22,
-      shadowColor: '#000',
+      padding: 18,
+      marginBottom: 16,
+      shadowColor: COLORS.dark,
       shadowOffset: {
         width: 0,
         height: 4
       },
-      shadowOpacity: 0.12,
+      shadowOpacity: 0.08,
       shadowRadius: 8,
-      elevation: 5
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: '700',
-      color: '#04324A',
-      marginBottom: 24,
-      textAlign: 'center'
+      elevation: 3
     },
     label: {
-      fontSize: 14,
-      color: '#777',
-      marginTop: 10
+      fontSize: 13,
+      color: COLORS.gray,
+      marginBottom: 6
     },
-    value: {
+    roomText: {
       fontSize: 18,
-      fontWeight: '600',
-      color: '#1d1d1d',
-      marginTop: 4
+      fontWeight: '700',
+      color: COLORS.secondary
     },
-    status: {
-      fontSize: 14,
-      color: '#04324A',
-      marginTop: 24,
-      textAlign: 'center',
+    destinationText: {
+      fontSize: 20,
+      fontWeight: '800',
+      color: COLORS.primary
+    },
+    divider: {
+      height: 1,
+      backgroundColor: COLORS.lightGray,
+      marginVertical: 14
+    },
+    mapCard: {
+      backgroundColor: COLORS.accent,
+      borderRadius: 22,
+      padding: 18,
+      marginBottom: 16
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: '800',
+      color: COLORS.secondary,
+      marginBottom: 14
+    },
+    routePreview: {
+      height: 150,
+      borderRadius: 18,
+      backgroundColor: COLORS.white,
+      paddingHorizontal: 22,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    },
+    pointStart: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      backgroundColor: COLORS.secondary,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    pointEnd: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      backgroundColor: COLORS.primary,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    pointText: {
+      color: COLORS.white,
+      fontSize: 12,
+      fontWeight: '800'
+    },
+    routeLine: {
+      flex: 1,
+      height: 8,
+      backgroundColor: COLORS.primary,
+      marginHorizontal: 12,
+      borderRadius: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around'
+    },
+    routeDot: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      backgroundColor: COLORS.white,
+      borderWidth: 2,
+      borderColor: COLORS.primary
+    },
+    previewNote: {
+      marginTop: 12,
+      fontSize: 13,
+      color: COLORS.secondary,
       lineHeight: 20
     },
-    button: {
-      backgroundColor: '#700003',
-      paddingVertical: 14,
-      borderRadius: 14,
-      marginTop: 24,
-      alignItems: 'center'
+    stepsCard: {
+      backgroundColor: COLORS.white,
+      borderRadius: 20,
+      padding: 18,
+      marginBottom: 16,
+      shadowColor: COLORS.dark,
+      shadowOffset: {
+        width: 0,
+        height: 4
+      },
+      shadowOpacity: 0.07,
+      shadowRadius: 8,
+      elevation: 3
     },
-    buttonText: {
-      color: '#ffffff',
+    stepRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 14
+    },
+    stepCircle: {
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      backgroundColor: COLORS.secondary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 12
+    },
+    stepNumber: {
+      color: COLORS.white,
+      fontSize: 13,
+      fontWeight: '800'
+    },
+    stepText: {
+      flex: 1,
+      fontSize: 14,
+      color: COLORS.dark,
+      lineHeight: 21
+    },
+    statusBox: {
+      backgroundColor: '#fff7ed',
+      borderRadius: 18,
+      padding: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: '#fed7aa'
+    },
+    statusTitle: {
       fontSize: 16,
-      fontWeight: '700'
+      fontWeight: '800',
+      color: COLORS.primary,
+      marginBottom: 6
+    },
+    statusText: {
+      fontSize: 14,
+      color: COLORS.dark,
+      lineHeight: 20
+    },
+    arrivedBox: {
+      backgroundColor: '#ecfdf5',
+      borderRadius: 18,
+      padding: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: '#99f6e4'
+    },
+    arrivedTitle: {
+      fontSize: 16,
+      fontWeight: '800',
+      color: COLORS.success,
+      marginBottom: 6
+    },
+    arrivedText: {
+      fontSize: 14,
+      color: COLORS.dark
+    },
+    primaryButton: {
+      backgroundColor: COLORS.primary,
+      borderRadius: 18,
+      paddingVertical: 16,
+      alignItems: 'center',
+      marginBottom: 12
+    },
+    primaryButtonText: {
+      color: COLORS.white,
+      fontSize: 16,
+      fontWeight: '800'
     },
     secondaryButton: {
-      paddingVertical: 14,
-      borderRadius: 14,
-      marginTop: 10,
+      backgroundColor: COLORS.secondary,
+      borderRadius: 18,
+      paddingVertical: 15,
       alignItems: 'center',
-      borderWidth: 1,
-      borderColor: '#04324A'
+      marginBottom: 12
     },
     secondaryButtonText: {
-      color: '#04324A',
-      fontSize: 16,
-      fontWeight: '600'
+      color: COLORS.white,
+      fontSize: 15,
+      fontWeight: '700'
+    },
+    backButton: {
+      borderWidth: 1,
+      borderColor: COLORS.lightGray,
+      borderRadius: 18,
+      paddingVertical: 15,
+      alignItems: 'center',
+      backgroundColor: COLORS.white
+    },
+    backButtonText: {
+      color: COLORS.secondary,
+      fontSize: 15,
+      fontWeight: '700'
     }
   });
-},863,[1,32,71,2,178],"src/screens/ar/ARNavigationScreen.tsx");
+},864,[1,32,71,2,602,178],"src/screens/ar/ARNavigationScreen.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -120979,27 +121335,12 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var _slicedToArray2 = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[2], "@babel/runtime/helpers/slicedToArray"));
   var _react = _interopRequireWildcard(_$$_REQUIRE(_dependencyMap[3], "react"));
   var _reactNative = _$$_REQUIRE(_dependencyMap[4], "react-native");
-  var _asyncStorage = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[5], "@react-native-async-storage/async-storage"));
-  var _Header = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[6], "../../components/layout/Header"));
-  var _BottomNav = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[7], "../../components/layout/BottomNav"));
-  var _CustomInput = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[8], "../../components/ui/CustomInput"));
-  var _jsxRuntime = _$$_REQUIRE(_dependencyMap[9], "react/jsx-runtime");
+  var _Header = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[5], "../../components/layout/Header"));
+  var _BottomNav = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[6], "../../components/layout/BottomNav"));
+  var _CustomInput = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[7], "../../components/ui/CustomInput"));
+  var _jsxRuntime = _$$_REQUIRE(_dependencyMap[8], "react/jsx-runtime");
   var _jsxFileName = "C:\\Users\\dan\\Desktop\\graduation project\\UniWay\\src\\screens\\bookmarks\\BookmarksScreen.tsx";
   function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function (e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != typeof e && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
-  var STORAGE_KEY = 'BOOKMARKED_ROOMS';
-  var defaultRooms = [{
-    id: '1',
-    name: 'قاعة 101',
-    description: 'الدور الأول، بجانب المدخل الرئيسي'
-  }, {
-    id: '2',
-    name: 'قاعة 202',
-    description: 'الدور الثاني، بجانب معمل الحاسب'
-  }, {
-    id: '3',
-    name: 'معمل A-12',
-    description: 'الدور الأرضي، نهاية الممر الأيسر'
-  }];
   var BookmarksScreen = ({
     navigation
   }) => {
@@ -121011,62 +121352,37 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
       rooms = _useState4[0],
       setRooms = _useState4[1];
-    (0, _react.useEffect)(() => {
-      _reactNative.I18nManager.forceRTL(true);
-      loadBookmarks();
-    }, []);
+    var _useState5 = (0, _react.useState)(false),
+      _useState6 = (0, _slicedToArray2.default)(_useState5, 2),
+      loading = _useState6[0],
+      setLoading = _useState6[1];
     var loadBookmarks = /*#__PURE__*/function () {
       var _ref = (0, _asyncToGenerator2.default)(function* () {
         try {
-          var savedRooms = yield _asyncStorage.default.getItem(STORAGE_KEY);
-          if (savedRooms) {
-            var parsedRooms = JSON.parse(savedRooms);
-            if (parsedRooms.length === 0) {
-              setRooms(defaultRooms);
-              yield _asyncStorage.default.setItem(STORAGE_KEY, JSON.stringify(defaultRooms));
-            } else {
-              setRooms(parsedRooms);
-            }
-          } else {
-            setRooms(defaultRooms);
-            yield _asyncStorage.default.setItem(STORAGE_KEY, JSON.stringify(defaultRooms));
-          }
+          setLoading(true);
+          var savedRooms = yield (0, _$$_REQUIRE(_dependencyMap[9], "../../services/api/bookmarksApi").fetchBookmarks)();
+          setRooms(savedRooms);
         } catch (error) {
-          console.log('Error loading bookmarks:', error);
-          setRooms(defaultRooms);
+          _reactNative.Alert.alert('خطأ', 'تعذر تحميل القاعات المحفوظة من الخادم');
+        } finally {
+          setLoading(false);
         }
       });
       return function loadBookmarks() {
         return _ref.apply(this, arguments);
       };
     }();
-    var saveBookmarks = /*#__PURE__*/function () {
-      var _ref2 = (0, _asyncToGenerator2.default)(function* (updatedRooms) {
-        try {
-          yield _asyncStorage.default.setItem(STORAGE_KEY, JSON.stringify(updatedRooms));
-        } catch (error) {
-          console.log('Error saving bookmarks:', error);
-        }
-      });
-      return function saveBookmarks(_x) {
-        return _ref2.apply(this, arguments);
-      };
-    }();
-    var deleteRoom = /*#__PURE__*/function () {
-      var _ref3 = (0, _asyncToGenerator2.default)(function* (id) {
-        var updatedRooms = rooms.filter(room => room.id !== id);
-        setRooms(updatedRooms);
-        yield saveBookmarks(updatedRooms);
-      });
-      return function deleteRoom(_x2) {
-        return _ref3.apply(this, arguments);
-      };
-    }();
+    (0, _$$_REQUIRE(_dependencyMap[10], "@react-navigation/native").useFocusEffect)((0, _react.useCallback)(() => {
+      loadBookmarks();
+    }, []));
     var handleRoomPress = room => {
       navigation.navigate('ARNavigation', {
         room: room.name,
         description: room.description
       });
+    };
+    var handleDelete = () => {
+      _reactNative.Alert.alert('غير متاح حاليًا', 'لا يوجد مسار حذف في الباكند حاليًا. نحتاج DELETE endpoint لحذف القاعات من المفضلة.');
     };
     var filteredRooms = rooms.filter(room => `${room.name} ${room.description}`.toLowerCase().includes(search.toLowerCase()));
     var renderItem = ({
@@ -121077,7 +121393,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       onPress: () => handleRoomPress(item),
       children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.TouchableOpacity, {
         style: styles.deleteContainer,
-        onPress: () => deleteRoom(item.id),
+        onPress: handleDelete,
         children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
           style: styles.delete,
           children: "\u062D\u0630\u0641"
@@ -121107,9 +121423,18 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
             onChangeText: setSearch
           })
         })
-      }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.FlatList, {
+      }), loading ? /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+        style: styles.loadingContainer,
+        children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.ActivityIndicator, {
+          size: "large",
+          color: "#700003"
+        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
+          style: styles.loadingText,
+          children: "\u062C\u0627\u0631\u064D \u062A\u062D\u0645\u064A\u0644 \u0627\u0644\u0642\u0627\u0639\u0627\u062A \u0627\u0644\u0645\u062D\u0641\u0648\u0638\u0629..."
+        })]
+      }) : /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.FlatList, {
         data: filteredRooms,
-        keyExtractor: item => item.id,
+        keyExtractor: (item, index) => `${item.id}-${index}`,
         renderItem: renderItem,
         contentContainerStyle: styles.listContent,
         ListEmptyComponent: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
@@ -121142,20 +121467,30 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     },
     listContent: {
       paddingHorizontal: 16,
-      paddingBottom: 100
+      paddingBottom: 120
+    },
+    loadingContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingBottom: 120
+    },
+    loadingText: {
+      marginTop: 12,
+      color: '#700003',
+      fontSize: 15,
+      fontWeight: '600',
+      textAlign: 'center'
     },
     card: {
       backgroundColor: '#700003',
       padding: 16,
       borderRadius: 20,
       marginBottom: 20,
-      // layout
       flexDirection: 'row',
       alignItems: 'flex-start',
       direction: 'ltr',
-      // 🔥 REAL shadow (Android)
       elevation: 12,
-      // 🔥 extra depth (iOS)
       shadowColor: '#000',
       shadowOffset: {
         width: 0,
@@ -121185,7 +121520,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     roomDescription: {
       color: '#f3f1f5',
       fontSize: 18,
-      lineHeight: 18,
+      lineHeight: 24,
       textAlign: 'right',
       writingDirection: 'rtl'
     },
@@ -121202,7 +121537,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       fontSize: 16
     }
   });
-},864,[1,174,32,71,2,850,602,603,865,178],"src/screens/bookmarks/BookmarksScreen.tsx");
+},865,[1,174,32,71,2,602,603,866,178,862,723],"src/screens/bookmarks/BookmarksScreen.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -121247,7 +121582,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       fontSize: 16
     }
   });
-},865,[1,71,2,178],"src/components/ui/CustomInput.tsx");
+},866,[1,71,2,178],"src/components/ui/CustomInput.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -121409,7 +121744,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       textAlign: 'right'
     }
   });
-},866,[1,32,71,2,602,603,178],"src/screens/info/informationPage.tsx");
+},867,[1,32,71,2,602,603,178],"src/screens/info/informationPage.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -121474,7 +121809,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       textAlign: 'right'
     }
   });
-},867,[1,71,2,178],"src/screens/info/informationPageDetails.tsx");
+},868,[1,71,2,178],"src/screens/info/informationPageDetails.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -121502,7 +121837,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       return _$$_REQUIRE(_dependencyMap[2], "./utils/useAnimatedHeaderHeight.js").useAnimatedHeaderHeight;
     }
   });
-},868,[869,978,974],"node_modules/@react-navigation/native-stack/lib/module/index.js");
+},869,[870,979,975],"node_modules/@react-navigation/native-stack/lib/module/index.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -121993,7 +122328,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       overflow: 'hidden'
     }
   });
-},869,[1,32,71,2,178,723,870,879,924,925,972,974,975,976,977],"node_modules/@react-navigation/native-stack/lib/module/views/NativeStackView.native.js");
+},870,[1,32,71,2,178,723,871,880,925,926,973,975,976,977,978],"node_modules/@react-navigation/native-stack/lib/module/views/NativeStackView.native.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -122040,7 +122375,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       }
     });
   });
-},870,[871,874,876,878],"node_modules/react-native-safe-area-context/src/index.tsx");
+},871,[872,875,877,879],"node_modules/react-native-safe-area-context/src/index.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -122196,7 +122531,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
    * @deprecated
    */
   var SafeAreaContext = exports.SafeAreaContext = SafeAreaInsetsContext;
-},871,[1,32,71,2,178,872],"node_modules/react-native-safe-area-context/src/SafeAreaContext.tsx");
+},872,[1,32,71,2,178,873],"node_modules/react-native-safe-area-context/src/SafeAreaContext.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -122209,7 +122544,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   });
   var _NativeSafeAreaProvider = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[1], "./specs/NativeSafeAreaProvider"));
-},872,[1,873],"node_modules/react-native-safe-area-context/src/NativeSafeAreaProvider.tsx");
+},873,[1,874],"node_modules/react-native-safe-area-context/src/NativeSafeAreaProvider.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -122232,7 +122567,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[3], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},873,[1,309,102,75],"node_modules/react-native-safe-area-context/src/specs/NativeSafeAreaProvider.ts");
+},874,[1,309,102,75],"node_modules/react-native-safe-area-context/src/specs/NativeSafeAreaProvider.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -122281,7 +122616,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       ref: ref
     });
   });
-},874,[1,71,875,178],"node_modules/react-native-safe-area-context/src/SafeAreaView.tsx");
+},875,[1,71,876,178],"node_modules/react-native-safe-area-context/src/SafeAreaView.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -122298,7 +122633,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[2], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},875,[1,309,75],"node_modules/react-native-safe-area-context/src/specs/NativeSafeAreaView.ts");
+},876,[1,309,75],"node_modules/react-native-safe-area-context/src/specs/NativeSafeAreaView.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -122312,7 +122647,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
    * @deprecated
    */
   var initialWindowSafeAreaInsets = exports.initialWindowSafeAreaInsets = initialWindowMetrics?.insets;
-},876,[1,877],"node_modules/react-native-safe-area-context/src/InitialWindow.native.ts");
+},877,[1,878],"node_modules/react-native-safe-area-context/src/InitialWindow.native.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -122320,12 +122655,12 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   exports.default = void 0;
   var _reactNative = _$$_REQUIRE(_dependencyMap[0], "react-native");
   var _default = exports.default = _reactNative.TurboModuleRegistry.get('RNCSafeAreaContext');
-},877,[2],"node_modules/react-native-safe-area-context/src/specs/NativeSafeAreaContext.ts");
+},878,[2],"node_modules/react-native-safe-area-context/src/specs/NativeSafeAreaContext.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-},878,[],"node_modules/react-native-safe-area-context/src/SafeArea.types.ts");
+},879,[],"node_modules/react-native-safe-area-context/src/SafeArea.types.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -122529,7 +122864,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   });
   var Assets = exports.Assets = [_backIcon.default, _backIconMask.default, _searchIcon.default, _closeIcon.default, _clearIcon.default];
-},879,[1,880,881,890,893,898,911,907,904,912,896,906,913,914,915,891,916,917,918,892,905,919,920,921,895,922,899,900,909,910,894,923],"node_modules/@react-navigation/elements/lib/module/index.js");
+},880,[1,881,882,891,894,899,912,908,905,913,897,907,914,915,916,892,917,918,919,893,906,920,921,922,896,923,900,901,910,911,895,924],"node_modules/@react-navigation/elements/lib/module/index.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -122555,7 +122890,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       }, style]
     });
   }
-},880,[71,2,178,723],"node_modules/@react-navigation/elements/lib/module/Background.js");
+},881,[71,2,178,723],"node_modules/@react-navigation/elements/lib/module/Background.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -122654,7 +122989,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       overflow: 'hidden'
     }
   });
-},881,[1,68,32,882,71,2,178,723],"node_modules/@react-navigation/elements/lib/module/Badge.js");
+},882,[1,68,32,883,71,2,178,723],"node_modules/@react-navigation/elements/lib/module/Badge.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _slicedToArray = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/slicedToArray");
   var skippedModels = [
@@ -123049,7 +123384,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     return array;
   }
   module.exports = Color;
-},882,[32,883,887],"node_modules/color/index.js");
+},883,[32,884,888],"node_modules/color/index.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var convert = {};
   var models = Object.keys(_$$_REQUIRE(_dependencyMap[0], "./conversions"));
@@ -123116,7 +123451,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   });
   module.exports = convert;
-},883,[884,886],"node_modules/color-convert/index.js");
+},884,[885,887],"node_modules/color-convert/index.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _slicedToArray = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/slicedToArray");
   /* MIT license */
@@ -123869,7 +124204,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     var val = (rgb[0] + rgb[1] + rgb[2]) / 3;
     return [val / 255 * 100];
   };
-},884,[32,885],"node_modules/color-convert/conversions.js");
+},885,[32,886],"node_modules/color-convert/conversions.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use strict';
 
@@ -124023,7 +124358,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     "yellow": [255, 255, 0],
     "yellowgreen": [154, 205, 50]
   };
-},885,[],"node_modules/color-name/index.js");
+},886,[],"node_modules/color-name/index.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   /*
   	This function routes a model to all other models.
@@ -124104,7 +124439,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
     return conversion;
   };
-},886,[884],"node_modules/color-convert/route.js");
+},887,[885],"node_modules/color-convert/route.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   /* MIT license */
 
@@ -124295,7 +124630,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     var str = Math.round(num).toString(16).toUpperCase();
     return str.length < 2 ? '0' + str : str;
   }
-},887,[885,888],"node_modules/color-string/index.js");
+},888,[886,889],"node_modules/color-string/index.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use strict';
 
@@ -124319,7 +124654,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       return fn(swizzle(arguments));
     };
   };
-},888,[889],"node_modules/simple-swizzle/index.js");
+},889,[890],"node_modules/simple-swizzle/index.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   module.exports = function isArrayish(obj) {
     if (!obj || typeof obj === 'string') {
@@ -124327,7 +124662,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
     return obj instanceof Array || Array.isArray(obj) || obj.length >= 0 && (obj.splice instanceof Function || Object.getOwnPropertyDescriptor(obj, obj.length - 1) && obj.constructor.name !== 'String');
   };
-},889,[],"node_modules/simple-swizzle/node_modules/is-arrayish/index.js");
+},890,[],"node_modules/simple-swizzle/node_modules/is-arrayish/index.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -124437,7 +124772,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       textAlign: 'center'
     }
   });
-},890,[1,882,71,2,178,723,891,892],"node_modules/@react-navigation/elements/lib/module/Button.js");
+},891,[1,883,71,2,178,723,892,893],"node_modules/@react-navigation/elements/lib/module/Button.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -124590,7 +124925,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       })]
     });
   };
-},891,[1,32,71,2,178,723],"node_modules/@react-navigation/elements/lib/module/PlatformPressable.js");
+},892,[1,32,71,2,178,723],"node_modules/@react-navigation/elements/lib/module/PlatformPressable.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -124616,7 +124951,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       }, fonts.regular, style]
     });
   }
-},892,[2,178,723],"node_modules/@react-navigation/elements/lib/module/Text.js");
+},893,[2,178,723],"node_modules/@react-navigation/elements/lib/module/Text.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -124973,7 +125308,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       flexBasis: 0
     }
   });
-},893,[1,68,32,882,71,2,894,178,870,895,723,896,898,905,906,907,904,901,908],"node_modules/@react-navigation/elements/lib/module/Header/Header.js");
+},894,[1,68,32,883,71,2,895,178,871,896,723,897,899,906,907,908,905,902,909],"node_modules/@react-navigation/elements/lib/module/Header/Header.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   module.exports = _$$_REQUIRE(_dependencyMap[0], "react-native/Libraries/Image/AssetRegistry").registerAsset({
     "__packager_asset": true,
@@ -124985,7 +125320,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     "name": "search-icon",
     "type": "png"
   });
-},894,[353],"node_modules/@react-navigation/elements/lib/module/assets/search-icon.png");
+},895,[353],"node_modules/@react-navigation/elements/lib/module/assets/search-icon.png");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125152,7 +125487,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       }
     });
   }
-},895,[1,71,2,730,178,819],"node_modules/@react-navigation/elements/lib/module/useFrameSize.js");
+},896,[1,71,2,730,178,819],"node_modules/@react-navigation/elements/lib/module/useFrameSize.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125161,7 +125496,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   });
   exports.HeaderShownContext = void 0;
   var HeaderShownContext = exports.HeaderShownContext = (0, _$$_REQUIRE(_dependencyMap[0], "../getNamedContext.js").getNamedContext)('HeaderShownContext', false);
-},896,[897],"node_modules/@react-navigation/elements/lib/module/Header/HeaderShownContext.js");
+},897,[898],"node_modules/@react-navigation/elements/lib/module/Header/HeaderShownContext.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125184,7 +125519,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     globalThis[contexts].set(name, context);
     return context;
   }
-},897,[71],"node_modules/@react-navigation/elements/lib/module/getNamedContext.js");
+},898,[71],"node_modules/@react-navigation/elements/lib/module/getNamedContext.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125377,7 +125712,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       transform: 'scaleX(-1)'
     }
   });
-},898,[1,32,71,2,899,900,178,723,901,902,904],"node_modules/@react-navigation/elements/lib/module/Header/HeaderBackButton.js");
+},899,[1,32,71,2,900,901,178,723,902,903,905],"node_modules/@react-navigation/elements/lib/module/Header/HeaderBackButton.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   module.exports = _$$_REQUIRE(_dependencyMap[0], "react-native/Libraries/Image/AssetRegistry").registerAsset({
     "__packager_asset": true,
@@ -125389,7 +125724,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     "name": "back-icon",
     "type": "png"
   });
-},899,[353],"node_modules/@react-navigation/elements/lib/module/assets/back-icon.png");
+},900,[353],"node_modules/@react-navigation/elements/lib/module/assets/back-icon.png");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   module.exports = _$$_REQUIRE(_dependencyMap[0], "react-native/Libraries/Image/AssetRegistry").registerAsset({
     "__packager_asset": true,
@@ -125401,7 +125736,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     "name": "back-icon-mask",
     "type": "png"
   });
-},900,[353],"node_modules/@react-navigation/elements/lib/module/assets/back-icon-mask.png");
+},901,[353],"node_modules/@react-navigation/elements/lib/module/assets/back-icon-mask.png");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125442,7 +125777,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       transform: 'scaleX(-1)'
     }
   });
-},901,[2,178,723],"node_modules/@react-navigation/elements/lib/module/Header/HeaderIcon.js");
+},902,[2,178,723],"node_modules/@react-navigation/elements/lib/module/Header/HeaderIcon.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125455,7 +125790,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       return _$$_REQUIRE(_dependencyMap[0], "./MaskedViewNative.js").MaskedView;
     }
   });
-},902,[903],"node_modules/@react-navigation/elements/lib/module/MaskedView.android.js");
+},903,[904],"node_modules/@react-navigation/elements/lib/module/MaskedView.android.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125491,7 +125826,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
     return children;
   }
-},903,[71,2,178,null],"node_modules/@react-navigation/elements/lib/module/MaskedViewNative.js");
+},904,[71,2,178,null],"node_modules/@react-navigation/elements/lib/module/MaskedViewNative.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125554,7 +125889,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       opacity: 0.5
     }
   });
-},904,[71,2,178,891],"node_modules/@react-navigation/elements/lib/module/Header/HeaderButton.js");
+},905,[71,2,178,892],"node_modules/@react-navigation/elements/lib/module/Header/HeaderButton.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125593,7 +125928,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
     return headerHeight + statusBarHeight;
   }
-},905,[2],"node_modules/@react-navigation/elements/lib/module/Header/getDefaultHeaderHeight.js");
+},906,[2],"node_modules/@react-navigation/elements/lib/module/Header/getDefaultHeaderHeight.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125626,7 +125961,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       fontSize: 20
     }
   });
-},906,[2,178,723],"node_modules/@react-navigation/elements/lib/module/Header/HeaderTitle.js");
+},907,[2,178,723],"node_modules/@react-navigation/elements/lib/module/Header/HeaderTitle.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125664,7 +125999,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       }
     }
   });
-},907,[71,2,178,723],"node_modules/@react-navigation/elements/lib/module/Header/HeaderBackground.js");
+},908,[71,2,178,723],"node_modules/@react-navigation/elements/lib/module/Header/HeaderBackground.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125929,7 +126264,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   });
   var HeaderSearchBar = exports.HeaderSearchBar = /*#__PURE__*/React.forwardRef(HeaderSearchBarInternal);
-},908,[1,32,882,71,2,909,910,894,178,723,901,891,904,892],"node_modules/@react-navigation/elements/lib/module/Header/HeaderSearchBar.js");
+},909,[1,32,883,71,2,910,911,895,178,723,902,892,905,893],"node_modules/@react-navigation/elements/lib/module/Header/HeaderSearchBar.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   module.exports = _$$_REQUIRE(_dependencyMap[0], "react-native/Libraries/Image/AssetRegistry").registerAsset({
     "__packager_asset": true,
@@ -125941,7 +126276,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     "name": "clear-icon",
     "type": "png"
   });
-},909,[353],"node_modules/@react-navigation/elements/lib/module/assets/clear-icon.png");
+},910,[353],"node_modules/@react-navigation/elements/lib/module/assets/clear-icon.png");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   module.exports = _$$_REQUIRE(_dependencyMap[0], "react-native/Libraries/Image/AssetRegistry").registerAsset({
     "__packager_asset": true,
@@ -125953,7 +126288,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     "name": "close-icon",
     "type": "png"
   });
-},910,[353],"node_modules/@react-navigation/elements/lib/module/assets/close-icon.png");
+},911,[353],"node_modules/@react-navigation/elements/lib/module/assets/close-icon.png");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125962,7 +126297,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   });
   exports.HeaderBackContext = void 0;
   var HeaderBackContext = exports.HeaderBackContext = (0, _$$_REQUIRE(_dependencyMap[0], "../getNamedContext.js").getNamedContext)('HeaderBackContext', undefined);
-},911,[897],"node_modules/@react-navigation/elements/lib/module/Header/HeaderBackContext.js");
+},912,[898],"node_modules/@react-navigation/elements/lib/module/Header/HeaderBackContext.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -125971,7 +126306,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   });
   exports.HeaderHeightContext = void 0;
   var HeaderHeightContext = exports.HeaderHeightContext = (0, _$$_REQUIRE(_dependencyMap[0], "../getNamedContext.js").getNamedContext)('HeaderHeightContext', undefined);
-},912,[897],"node_modules/@react-navigation/elements/lib/module/Header/HeaderHeightContext.js");
+},913,[898],"node_modules/@react-navigation/elements/lib/module/Header/HeaderHeightContext.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126000,7 +126335,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       backgroundColor: 'transparent'
     }
   });
-},913,[2,178,892],"node_modules/@react-navigation/elements/lib/module/Label/Label.js");
+},914,[2,178,893],"node_modules/@react-navigation/elements/lib/module/Label/Label.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126053,7 +126388,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
     return null;
   }
-},914,[1,32,71],"node_modules/@react-navigation/elements/lib/module/Lazy.js");
+},915,[1,32,71],"node_modules/@react-navigation/elements/lib/module/Lazy.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126081,7 +126416,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       backgroundColor: 'transparent'
     }
   });
-},915,[2,178,892],"node_modules/@react-navigation/elements/lib/module/MissingIcon.js");
+},916,[2,178,893],"node_modules/@react-navigation/elements/lib/module/MissingIcon.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126145,7 +126480,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       top: FAR_FAR_AWAY
     }
   });
-},916,[71,2,178],"node_modules/@react-navigation/elements/lib/module/ResourceSavingView.js");
+},917,[71,2,178],"node_modules/@react-navigation/elements/lib/module/ResourceSavingView.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126220,7 +126555,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       flex: 1
     }
   });
-},917,[71,2,178,870,895],"node_modules/@react-navigation/elements/lib/module/SafeAreaProviderCompat.js");
+},918,[71,2,178,871,896],"node_modules/@react-navigation/elements/lib/module/SafeAreaProviderCompat.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126312,7 +126647,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       end: 0
     }
   });
-},918,[1,32,71,2,178,870,896,912,895,905,880,723],"node_modules/@react-navigation/elements/lib/module/Screen.js");
+},919,[1,32,71,2,178,871,897,913,896,906,881,723],"node_modules/@react-navigation/elements/lib/module/Screen.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126336,7 +126671,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     return DEFAULT_DRAWER_WIDTH;
   };
   exports.getDefaultSidebarWidth = getDefaultSidebarWidth;
-},919,[],"node_modules/@react-navigation/elements/lib/module/getDefaultSidebarWidth.js");
+},920,[],"node_modules/@react-navigation/elements/lib/module/getDefaultSidebarWidth.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126347,7 +126682,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   function getHeaderTitle(options, fallback) {
     return typeof options.headerTitle === 'string' ? options.headerTitle : options.title !== undefined ? options.title : fallback;
   }
-},920,[],"node_modules/@react-navigation/elements/lib/module/Header/getHeaderTitle.js");
+},921,[],"node_modules/@react-navigation/elements/lib/module/Header/getHeaderTitle.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126358,7 +126693,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   function getLabel(options, fallback) {
     return options.label !== undefined ? options.label : options.title !== undefined ? options.title : fallback;
   }
-},921,[],"node_modules/@react-navigation/elements/lib/module/Label/getLabel.js");
+},922,[],"node_modules/@react-navigation/elements/lib/module/Label/getLabel.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126375,14 +126710,14 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
     return height;
   }
-},922,[71,912],"node_modules/@react-navigation/elements/lib/module/Header/useHeaderHeight.js");
+},923,[71,913],"node_modules/@react-navigation/elements/lib/module/Header/useHeaderHeight.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-},923,[],"node_modules/@react-navigation/elements/lib/module/types.js");
+},924,[],"node_modules/@react-navigation/elements/lib/module/types.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -126399,7 +126734,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       }, duration);
     };
   }
-},924,[],"node_modules/@react-navigation/native-stack/lib/module/utils/debounce.js");
+},925,[],"node_modules/@react-navigation/native-stack/lib/module/utils/debounce.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -126619,7 +126954,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var _useTransitionProgress = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[15], "./useTransitionProgress"));
   var _tabs = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[16], "./components/tabs"));
   function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function (e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != typeof e && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
-},925,[1,926,927,932,930,933,934,935,943,945,948,951,959,957,953,961,962],"node_modules/react-native-screens/src/index.tsx");
+},926,[1,927,928,933,931,934,935,936,944,946,949,952,960,958,954,962,963],"node_modules/react-native-screens/src/index.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -126772,7 +127107,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       alignItems: "android" === 'ios' ? 'center' : undefined
     }
   });
-},926,[1,68,71,2,927,928,929,178,930,931],"node_modules/react-native-screens/src/components/ScreenStackHeaderConfig.tsx");
+},927,[1,68,71,2,928,929,930,178,931,932],"node_modules/react-native-screens/src/components/ScreenStackHeaderConfig.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -126924,7 +127259,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     stable: {}
   };
   var _default = exports.default = featureFlags;
-},927,[],"node_modules/react-native-screens/src/flags.ts");
+},928,[],"node_modules/react-native-screens/src/flags.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -127007,7 +127342,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[3], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},928,[2,51,102,75],"node_modules/react-native-screens/src/fabric/ScreenStackHeaderConfigNativeComponent.ts");
+},929,[2,51,102,75],"node_modules/react-native-screens/src/fabric/ScreenStackHeaderConfigNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -127026,7 +127361,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[1], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},929,[2,75],"node_modules/react-native-screens/src/fabric/ScreenStackHeaderSubviewNativeComponent.ts");
+},930,[2,75],"node_modules/react-native-screens/src/fabric/ScreenStackHeaderSubviewNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -127052,7 +127387,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         return 'false';
     }
   }
-},930,[2],"node_modules/react-native-screens/src/utils.ts");
+},931,[2],"node_modules/react-native-screens/src/utils.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -127143,7 +127478,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   };
   exports.prepareHeaderBarButtonItems = prepareHeaderBarButtonItems;
-},931,[2],"node_modules/react-native-screens/src/components/helpers/prepareHeaderBarButtonItems.ts");
+},932,[2],"node_modules/react-native-screens/src/components/helpers/prepareHeaderBarButtonItems.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -127180,7 +127515,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   function freezeEnabled() {
     return ENABLE_FREEZE;
   }
-},932,[2],"node_modules/react-native-screens/src/core.ts");
+},933,[2],"node_modules/react-native-screens/src/core.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -127190,12 +127525,12 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   exports.default = void 0;
   var _reactNative = _$$_REQUIRE(_dependencyMap[0], "react-native");
   var _default = exports.default = _reactNative.TurboModuleRegistry.get('RNSModule');
-},933,[2],"node_modules/react-native-screens/src/fabric/NativeScreensModule.ts");
+},934,[2],"node_modules/react-native-screens/src/fabric/NativeScreensModule.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-},934,[],"node_modules/react-native-screens/src/types.tsx");
+},935,[],"node_modules/react-native-screens/src/types.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -127426,7 +127761,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   });
   Screen.displayName = 'Screen';
   var _default = exports.default = Screen;
-},935,[1,68,71,2,936,937,939,940,927,645,178,941,932,942,930],"node_modules/react-native-screens/src/components/Screen.tsx");
+},936,[1,68,71,2,937,938,940,941,928,645,178,942,933,943,931],"node_modules/react-native-screens/src/components/Screen.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -127437,7 +127772,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var React = _interopRequireWildcard(_$$_REQUIRE(_dependencyMap[0], "react"));
   function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function (e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != typeof e && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
   var _default = exports.default = React.createContext(undefined);
-},936,[71],"node_modules/react-native-screens/src/TransitionProgressContext.tsx");
+},937,[71],"node_modules/react-native-screens/src/TransitionProgressContext.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -127473,7 +127808,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   }
   var _default = exports.default = DelayedFreeze;
-},937,[1,32,71,178,938],"node_modules/react-native-screens/src/components/helpers/DelayedFreeze.tsx");
+},938,[1,32,71,178,939],"node_modules/react-native-screens/src/components/helpers/DelayedFreeze.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -127510,7 +127845,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       })
     });
   }
-},938,[71,178],"node_modules/react-freeze/src/index.tsx");
+},939,[71,178],"node_modules/react-freeze/src/index.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -127622,7 +127957,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[3], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},939,[2,51,102,75],"node_modules/react-native-screens/src/fabric/ScreenNativeComponent.ts");
+},940,[2,51,102,75],"node_modules/react-native-screens/src/fabric/ScreenNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -127728,7 +128063,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[3], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},940,[2,51,102,75],"node_modules/react-native-screens/src/fabric/ModalScreenNativeComponent.ts");
+},941,[2,51,102,75],"node_modules/react-native-screens/src/fabric/ModalScreenNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -127742,7 +128077,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
     return ref.current;
   }
-},941,[71],"node_modules/react-native-screens/src/components/helpers/usePrevious.tsx");
+},942,[71],"node_modules/react-native-screens/src/components/helpers/usePrevious.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -127836,7 +128171,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   function isIndexInClosedRange(value, lowerBound, upperBound) {
     return Number.isInteger(value) && value >= lowerBound && value <= upperBound;
   }
-},942,[2],"node_modules/react-native-screens/src/components/helpers/sheet.tsx");
+},943,[2],"node_modules/react-native-screens/src/components/helpers/sheet.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -127922,7 +128257,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     };
   }
   var _default = exports.default = _react.default.forwardRef(SearchBar);
-},943,[1,68,71,2,944,178,930],"node_modules/react-native-screens/src/components/SearchBar.tsx");
+},944,[1,68,71,2,945,178,931],"node_modules/react-native-screens/src/components/SearchBar.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128020,7 +128355,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       _$$_REQUIRE(_dependencyMap[4], "react-native/Libraries/ReactNative/RendererProxy").dispatchCommand(ref, "cancelSearch", []);
     }
   };
-},944,[2,51,102,75,104],"node_modules/react-native-screens/src/fabric/SearchBarNativeComponent.ts");
+},945,[2,51,102,75,104],"node_modules/react-native-screens/src/fabric/SearchBarNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128058,7 +128393,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   }
   var _default = exports.default = ScreenContainer;
-},945,[1,68,2,71,946,947,178,932],"node_modules/react-native-screens/src/components/ScreenContainer.tsx");
+},946,[1,68,2,71,947,948,178,933],"node_modules/react-native-screens/src/components/ScreenContainer.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128073,7 +128408,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     validAttributes: {}
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[1], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},946,[2,75],"node_modules/react-native-screens/src/fabric/ScreenContainerNativeComponent.ts");
+},947,[2,75],"node_modules/react-native-screens/src/fabric/ScreenContainerNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128088,7 +128423,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     validAttributes: {}
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[1], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},947,[2,75],"node_modules/react-native-screens/src/fabric/ScreenNavigationContainerNativeComponent.ts");
+},948,[2,75],"node_modules/react-native-screens/src/fabric/ScreenNavigationContainerNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128165,7 +128500,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   }
   var _default = exports.default = ScreenStack;
-},948,[1,68,71,645,949,927,178,950],"node_modules/react-native-screens/src/components/ScreenStack.tsx");
+},949,[1,68,71,645,950,928,178,951],"node_modules/react-native-screens/src/components/ScreenStack.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128193,7 +128528,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[2], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},949,[2,102,75],"node_modules/react-native-screens/src/fabric/ScreenStackNativeComponent.ts");
+},950,[2,102,75],"node_modules/react-native-screens/src/fabric/ScreenStackNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -128206,7 +128541,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     children: props.children
   }));
   var RNSScreensRefContext = exports.RNSScreensRefContext = _react.default.createContext(null);
-},950,[1,71,178],"node_modules/react-native-screens/src/contexts.tsx");
+},951,[1,71,178],"node_modules/react-native-screens/src/contexts.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -128398,7 +128733,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       end: 0
     }
   });
-},951,[1,68,71,2,645,952,935,948,955,178,950,926,957,927],"node_modules/react-native-screens/src/components/ScreenStackItem.tsx");
+},952,[1,68,71,2,645,953,936,949,956,178,951,927,958,928],"node_modules/react-native-screens/src/components/ScreenStackItem.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -128450,7 +128785,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     DebugContainer.displayName = 'DebugContainer';
   }
   var _default = exports.default = DebugContainer;
-},952,[1,68,71,2,305,953,178],"node_modules/react-native-screens/src/components/DebugContainer.tsx");
+},953,[1,68,71,2,305,954,178],"node_modules/react-native-screens/src/components/DebugContainer.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -128468,7 +128803,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   }
   var _default = exports.default = ScreenContentWrapper;
-},953,[1,71,954,178],"node_modules/react-native-screens/src/components/ScreenContentWrapper.tsx");
+},954,[1,71,955,178],"node_modules/react-native-screens/src/components/ScreenContentWrapper.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -128481,7 +128816,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     validAttributes: {}
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[1], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},954,[2,75],"node_modules/react-native-screens/src/fabric/ScreenContentWrapperNativeComponent.ts");
+},955,[2,75],"node_modules/react-native-screens/src/fabric/ScreenContentWrapperNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   // Implementation adapted from `react-native-safe-area-context`:
   // https://github.com/AppAndFlow/react-native-safe-area-context/blob/v5.6.1/src/SafeAreaView.tsx
@@ -128519,7 +128854,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       flex: 1
     }
   });
-},955,[1,71,956,2,178],"node_modules/react-native-screens/src/components/safe-area/SafeAreaView.tsx");
+},956,[1,71,957,2,178],"node_modules/react-native-screens/src/components/safe-area/SafeAreaView.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -128537,7 +128872,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[1], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},956,[2,75],"node_modules/react-native-screens/src/fabric/safe-area/SafeAreaViewNativeComponent.ts");
+},957,[2,75],"node_modules/react-native-screens/src/fabric/safe-area/SafeAreaViewNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -128566,7 +128901,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   }
   var _default = exports.default = ScreenFooter;
-},957,[1,71,958,178],"node_modules/react-native-screens/src/components/ScreenFooter.tsx");
+},958,[1,71,959,178],"node_modules/react-native-screens/src/components/ScreenFooter.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -128579,7 +128914,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     validAttributes: {}
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[1], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},958,[2,75],"node_modules/react-native-screens/src/fabric/ScreenFooterNativeComponent.ts");
+},959,[2,75],"node_modules/react-native-screens/src/fabric/ScreenFooterNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -128612,7 +128947,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   }
   var _default = exports.default = FullWindowOverlay;
-},959,[1,71,2,960,178],"node_modules/react-native-screens/src/components/FullWindowOverlay.tsx");
+},960,[1,71,2,961,178],"node_modules/react-native-screens/src/components/FullWindowOverlay.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128632,7 +128967,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[1], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},960,[2,75],"node_modules/react-native-screens/src/fabric/FullWindowOverlayNativeComponent.ts");
+},961,[2,75],"node_modules/react-native-screens/src/fabric/FullWindowOverlayNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -128649,7 +128984,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
     return progress;
   }
-},961,[1,71,936],"node_modules/react-native-screens/src/useTransitionProgress.tsx");
+},962,[1,71,937],"node_modules/react-native-screens/src/useTransitionProgress.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -128666,7 +129001,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     Screen: _TabsScreen.default
   };
   var _default = exports.default = Tabs;
-},962,[1,963,970],"node_modules/react-native-screens/src/components/tabs/index.ts");
+},963,[1,964,971],"node_modules/react-native-screens/src/components/tabs/index.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128748,7 +129083,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       height: '100%'
     }
   });
-},963,[1,32,68,71,2,964,927,965,967,178,969],"node_modules/react-native-screens/src/components/tabs/TabsHost.tsx");
+},964,[1,32,68,71,2,965,928,966,968,178,970],"node_modules/react-native-screens/src/components/tabs/TabsHost.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128818,7 +129153,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[3], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},964,[2,51,102,75],"node_modules/react-native-screens/src/fabric/tabs/TabsHostNativeComponent.ts");
+},965,[2,51,102,75],"node_modules/react-native-screens/src/fabric/tabs/TabsHostNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -128840,7 +129175,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       style: [props.style, _reactNative.StyleSheet.absoluteFill]
     });
   }
-},965,[1,71,966,2,178],"node_modules/react-native-screens/src/components/tabs/TabsAccessory.tsx");
+},966,[1,71,967,2,178],"node_modules/react-native-screens/src/components/tabs/TabsAccessory.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128864,7 +129199,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[2], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},966,[2,102,75],"node_modules/react-native-screens/src/fabric/tabs/TabsBottomAccessoryNativeComponent.ts");
+},967,[2,102,75],"node_modules/react-native-screens/src/fabric/tabs/TabsBottomAccessoryNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -128886,7 +129221,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       style: [props.style, _reactNative.StyleSheet.absoluteFill]
     });
   }
-},967,[1,71,2,968,178],"node_modules/react-native-screens/src/components/tabs/TabsAccessoryContent.tsx");
+},968,[1,71,2,969,178],"node_modules/react-native-screens/src/components/tabs/TabsAccessoryContent.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -128903,7 +129238,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[1], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},968,[2,75],"node_modules/react-native-screens/src/fabric/tabs/TabsBottomAccessoryContentNativeComponent.ts");
+},969,[2,75],"node_modules/react-native-screens/src/fabric/tabs/TabsBottomAccessoryContentNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -128919,7 +129254,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   function internalEnableDetailedBottomTabsLogging() {
     isDetailedLoggingEnabled = true;
   }
-},969,[],"node_modules/react-native-screens/src/private/logging.ts");
+},970,[],"node_modules/react-native-screens/src/private/logging.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -129172,7 +129507,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       height: '100%'
     }
   });
-},970,[1,68,32,71,2,971,178,969,938,932,927],"node_modules/react-native-screens/src/components/tabs/TabsScreen.tsx");
+},971,[1,68,32,71,2,972,178,970,939,933,928],"node_modules/react-native-screens/src/components/tabs/TabsScreen.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   'use client';
 
@@ -129254,7 +129589,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   };
   var _default = exports.default = _$$_REQUIRE(_dependencyMap[4], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
-},971,[2,90,51,102,75],"node_modules/react-native-screens/src/fabric/tabs/TabsScreenNativeComponent.ts");
+},972,[2,90,51,102,75],"node_modules/react-native-screens/src/fabric/tabs/TabsScreenNativeComponent.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -129616,7 +129951,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       experimental_userInterfaceStyle: dark ? 'dark' : 'light'
     };
   }
-},972,[1,32,68,882,2,178,723,973,879,925],"node_modules/@react-navigation/native-stack/lib/module/views/useHeaderConfigProps.js");
+},973,[1,32,68,883,2,178,723,974,880,926],"node_modules/@react-navigation/native-stack/lib/module/views/useHeaderConfigProps.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -129634,7 +129969,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
     return fontFamilies;
   }
-},973,[1,45],"node_modules/@react-navigation/native-stack/lib/module/views/FontProcessor.native.js");
+},974,[1,45],"node_modules/@react-navigation/native-stack/lib/module/views/FontProcessor.native.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -129653,7 +129988,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
     return animatedValue;
   }
-},974,[71],"node_modules/@react-navigation/native-stack/lib/module/utils/useAnimatedHeaderHeight.js");
+},975,[71],"node_modules/@react-navigation/native-stack/lib/module/utils/useAnimatedHeaderHeight.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -129681,7 +130016,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       setNextDismissedKey
     };
   }
-},975,[1,32,71],"node_modules/@react-navigation/native-stack/lib/module/utils/useDismissedRouteError.js");
+},976,[1,32,71],"node_modules/@react-navigation/native-stack/lib/module/utils/useDismissedRouteError.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -129705,7 +130040,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       }
     }, [preventedRouteKey, isHeaderBackButtonMenuEnabledOnPreventedScreen, preventedRouteName]);
   }
-},976,[71,723],"node_modules/@react-navigation/native-stack/lib/module/utils/useInvalidPreventRemoveError.js");
+},977,[71,723],"node_modules/@react-navigation/native-stack/lib/module/utils/useInvalidPreventRemoveError.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -129722,7 +130057,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     return acc;
   }, []);
   exports.getModalRouteKeys = getModalRouteKeys;
-},977,[],"node_modules/@react-navigation/native-stack/lib/module/utils/getModalRoutesKeys.js");
+},978,[],"node_modules/@react-navigation/native-stack/lib/module/utils/getModalRoutesKeys.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   "use strict";
 
@@ -129800,13 +130135,13 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   function createNativeStackNavigator(config) {
     return (0, _$$_REQUIRE(_dependencyMap[2], "@react-navigation/native").createNavigatorFactory)(NativeStackNavigator)(config);
   }
-},978,[71,178,723,869],"node_modules/@react-navigation/native-stack/lib/module/navigators/createNativeStackNavigator.js");
+},979,[71,178,723,870],"node_modules/@react-navigation/native-stack/lib/module/navigators/createNativeStackNavigator.js");
 __d(function(global, require, _importDefaultUnused, _importAllUnused, module, exports, _dependencyMapUnused) {
   module.exports = {
   "name": "UniWay",
   "displayName": "UniWay"
 }
 ;
-},979,[],"app.json");
+},980,[],"app.json");
 __r(109);
 __r(0);
