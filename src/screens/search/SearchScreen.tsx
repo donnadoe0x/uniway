@@ -33,7 +33,7 @@ const SearchScreen = ({ navigation }: any) => {
     try {
 
       const response = await fetch(
-        `${BASE_URL}/classrooms/search?query=${text}`
+        `${BASE_URL}/classrooms/search?query=${encodeURIComponent(text)}`
       );
 
       const data = await response.json();
@@ -100,7 +100,7 @@ const SearchScreen = ({ navigation }: any) => {
                 style={styles.item}
                 onPress={() =>
                   navigation.navigate('ARNavigation', {
-                    classroom: item,
+                    room: item,
                   })
                 }
               >
