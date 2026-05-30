@@ -26,6 +26,7 @@ const BookmarksScreen = ({ navigation }: any) => {
       const savedRooms = await fetchBookmarks();
       setRooms(savedRooms);
     } catch (error) {
+      console.log('Bookmarks screen error:', error);
       Alert.alert('خطأ', 'تعذر تحميل القاعات المحفوظة من الخادم');
     } finally {
       setLoading(false);
@@ -41,6 +42,9 @@ const BookmarksScreen = ({ navigation }: any) => {
   const handleRoomPress = (room: BookmarkRoom): void => {
     navigation.navigate('ARNavigation', {
       room: room.name,
+      destinationRoom: room.name,
+      selectedRoom: room.name,
+      roomId: room.roomId,
       description: room.description,
     });
   };
@@ -53,7 +57,7 @@ const BookmarksScreen = ({ navigation }: any) => {
   };
 
   const filteredRooms = rooms.filter((room) =>
-    `${room.name} ${room.description}`
+    `${room.name} ${room.roomId} ${room.description} ${room.buildingId} ${room.floorNum}`
       .toLowerCase()
       .includes(search.toLowerCase())
   );
@@ -73,7 +77,14 @@ const BookmarksScreen = ({ navigation }: any) => {
 
       <View style={styles.textContainer}>
         <Text style={styles.roomTitle}>{item.name}</Text>
-        <Text style={styles.roomDescription}>{item.description}</Text>
+
+        <Text style={styles.roomDescription}>
+          {item.description}
+        </Text>
+
+        <Text style={styles.roomMeta}>
+          المبنى: {item.buildingId} | الدور: {item.floorNum}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -95,7 +106,9 @@ const BookmarksScreen = ({ navigation }: any) => {
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#700003" />
-          <Text style={styles.loadingText}>جارٍ تحميل القاعات المحفوظة...</Text>
+          <Text style={styles.loadingText}>
+            جارٍ تحميل القاعات المحفوظة...
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -104,7 +117,12 @@ const BookmarksScreen = ({ navigation }: any) => {
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>لا توجد قاعات محفوظة</Text>
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>لا توجد قاعات محفوظة</Text>
+              <Text style={styles.emptySubText}>
+                احفظي قاعة من شاشة تأكيد الموقع لتظهر هنا.
+              </Text>
+            </View>
           }
         />
       )}
@@ -156,13 +174,10 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 20,
     marginBottom: 20,
-
     flexDirection: 'row',
     alignItems: 'flex-start',
     direction: 'ltr',
-
     elevation: 12,
-
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
@@ -188,8 +203,15 @@ const styles = StyleSheet.create({
   },
   roomDescription: {
     color: '#f3f1f5',
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 24,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  roomMeta: {
+    color: '#FBEFD5',
+    fontSize: 13,
+    marginTop: 8,
     textAlign: 'right',
     writingDirection: 'rtl',
   },
@@ -199,10 +221,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'left',
   },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 40,
+    paddingHorizontal: 20,
+  },
   emptyText: {
     color: '#4B4B4B',
     textAlign: 'center',
-    marginTop: 24,
-    fontSize: 16,
+    fontSize: 17,
+    fontWeight: '700',
+  },
+  emptySubText: {
+    color: '#777',
+    textAlign: 'center',
+    marginTop: 8,
+    fontSize: 14,
+    lineHeight: 22,
   },
 });
