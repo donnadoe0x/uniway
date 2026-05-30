@@ -9,14 +9,37 @@ import {
   PermissionsAndroid,
   Platform,
   Linking,
+  ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import {
+  launchCamera,
+  launchImageLibrary,
+  Asset,
+} from 'react-native-image-picker';
 
 import Header from '../../components/layout/Header';
 import BottomNav from '../../components/layout/BottomNav';
 
 const CAMERA_POPUP_KEY = 'camera_permission_seen';
+const BASE_URL = 'https://rayouf0-uniway-backend-core.hf.space';
+const REQUEST_TIMEOUT = 30000;
+
+type PredictionData = {
+  detected_text_raw?: string;
+  processed_room_id?: string;
+  className?: string;
+  buildingId?: string;
+  floorNum?: string;
+  description?: string;
+};
+
+type PredictionResponse = {
+  status: 'success' | 'error';
+  message?: string;
+  error_code?: string;
+  data?: PredictionData;
+};
 
 const CaptureScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(false);
@@ -87,6 +110,7 @@ const CaptureScreen = ({ navigation }: any) => {
           { text: 'فتح الإعدادات', onPress: () => Linking.openSettings() },
         ]
       );
+
       return false;
     }
 
@@ -94,8 +118,64 @@ const CaptureScreen = ({ navigation }: any) => {
     return false;
   };
 
-  const handleImage = async (uri: string | undefined) => {
-    if (!uri) {
+  const requestWithTimeout = async (
+    url: string,
+    options: RequestInit
+  ): Promise<Response> => {
+    const controller = new AbortController();
+
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, REQUEST_TIMEOUT);
+
+    try {
+      return await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
+
+  const predictRoomFromImage = async (
+    asset: Asset
+  ): Promise<PredictionData> => {
+    if (!asset.uri) {
+      throw new Error('لم يتم العثور على مسار الصورة');
+    }
+
+    const formData = new FormData();
+
+    formData.append('file', {
+      uri: asset.uri,
+      type: asset.type || 'image/jpeg',
+      name: asset.fileName || `signage_${Date.now()}.jpg`,
+    } as any);
+
+    const response = await requestWithTimeout(`${BASE_URL}/predict`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+      body: formData,
+    });
+
+    const result: PredictionResponse = await response.json();
+
+    if (!response.ok || result.status !== 'success' || !result.data) {
+      throw new Error(
+        result.message ||
+          result.error_code ||
+          'تعذر التعرف على لوحة القاعة من الصورة'
+      );
+    }
+
+    return result.data;
+  };
+
+  const handleImage = async (asset: Asset | undefined): Promise<void> => {
+    if (!asset?.uri) {
       Alert.alert('تنبيه', 'لم يتم اختيار صورة');
       return;
     }
@@ -103,20 +183,37 @@ const CaptureScreen = ({ navigation }: any) => {
     try {
       setLoading(true);
 
-      setTimeout(() => {
-        setLoading(false);
+      const prediction = await predictRoomFromImage(asset);
 
-        navigation.navigate('Confirm', {
-          detectedRoom: 'قاعة 101',
-        });
-      }, 2000);
-    } catch (error) {
+      const detectedRoom =
+        prediction.className ||
+        prediction.processed_room_id ||
+        'قاعة غير محددة';
+
+      navigation.navigate('Confirm', {
+        detectedRoom,
+        processedRoomId: prediction.processed_room_id,
+        roomId: prediction.processed_room_id,
+        className: prediction.className,
+        buildingId: prediction.buildingId,
+        floorNum: prediction.floorNum,
+        description: prediction.description,
+        rawText: prediction.detected_text_raw,
+      });
+    } catch (error: any) {
+      console.log('Prediction error:', error);
+
+      Alert.alert(
+        'تعذر تحليل الصورة',
+        error?.message ||
+          'حدث خطأ أثناء إرسال الصورة إلى نموذج التعرف. حاولي بصورة أوضح أو اختاري صورة من المعرض.'
+      );
+    } finally {
       setLoading(false);
-      Alert.alert('خطأ', 'حدث خطأ أثناء تحليل الصورة');
     }
   };
 
-  const openCamera = async () => {
+  const openCamera = async (): Promise<void> => {
     try {
       const shouldContinue = await showCameraInfoOnce();
 
@@ -134,8 +231,8 @@ const CaptureScreen = ({ navigation }: any) => {
         mediaType: 'photo',
         quality: 0.8,
         saveToPhotos: false,
-        maxWidth: 1000,
-        maxHeight: 1000,
+        maxWidth: 1200,
+        maxHeight: 1200,
       });
 
       if (result.didCancel) {
@@ -147,21 +244,21 @@ const CaptureScreen = ({ navigation }: any) => {
         return;
       }
 
-      const imageUri = result.assets?.[0]?.uri;
-      handleImage(imageUri);
+      await handleImage(result.assets?.[0]);
     } catch (error) {
+      console.log('Camera error:', error);
       Alert.alert('خطأ', 'تعذر فتح الكاميرا');
     }
   };
 
-  const openGallery = async () => {
+  const openGallery = async (): Promise<void> => {
     try {
       const result = await launchImageLibrary({
         mediaType: 'photo',
         quality: 0.8,
         selectionLimit: 1,
-        maxWidth: 1000,
-        maxHeight: 1000,
+        maxWidth: 1200,
+        maxHeight: 1200,
       });
 
       if (result.didCancel) {
@@ -173,22 +270,22 @@ const CaptureScreen = ({ navigation }: any) => {
         return;
       }
 
-      const imageUri = result.assets?.[0]?.uri;
-      handleImage(imageUri);
+      await handleImage(result.assets?.[0]);
     } catch (error) {
+      console.log('Gallery error:', error);
       Alert.alert('خطأ', 'تعذر فتح المعرض');
     }
   };
 
   return (
     <View style={styles.container}>
-      <Header title="UniWay" />
+      <Header title="تحديد الموقع" />
 
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>التقطي صورة واضحة للوحة القاعة</Text>
 
         <Text style={styles.subtitle}>
-          تأكدي من ظهور اسم القاعة بشكل واضح داخل الصورة
+          تأكدي من ظهور اسم أو رقم القاعة بشكل واضح حتى يتمكن النظام من تحديد موقعك الحالي.
         </Text>
 
         <View style={styles.instructionBox}>
@@ -204,16 +301,24 @@ const CaptureScreen = ({ navigation }: any) => {
           </View>
         ) : (
           <>
-            <TouchableOpacity style={styles.primaryButton} onPress={openCamera}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={openCamera}
+              activeOpacity={0.85}
+            >
               <Text style={styles.primaryButtonText}>فتح الكاميرا</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.secondaryButton} onPress={openGallery}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={openGallery}
+              activeOpacity={0.85}
+            >
               <Text style={styles.secondaryButtonText}>اختيار صورة من المعرض</Text>
             </TouchableOpacity>
           </>
         )}
-      </View>
+      </ScrollView>
 
       <BottomNav navigation={navigation} />
     </View>
@@ -228,10 +333,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f7f7',
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
-    paddingBottom: 110,
+    paddingBottom: 120,
+    paddingTop: 24,
   },
   title: {
     fontSize: 21,
