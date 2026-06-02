@@ -1,97 +1,330 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# UniWay
 
-# Getting Started
+UniWay is a smart indoor navigation mobile application developed for Umm Al-Qura University. The application helps students and visitors identify their current classroom location using image-based sign recognition, search for destination classrooms, save frequently used rooms, and preview the navigation route.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+The system combines a React Native mobile application, a FastAPI backend, a machine learning/OCR pipeline, Firestore database records, and a Unity-based AR navigation module.
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Project Overview
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+University buildings can be difficult to navigate, especially for new students and visitors. UniWay addresses this problem by allowing users to capture a classroom sign image and use the detected classroom information as the starting point for navigation.
 
-```sh
-# Using npm
-npm start
+The main workflow is:
 
-# OR using Yarn
-yarn start
+1. Capture or select an image of a classroom sign.
+2. Send the image to the backend prediction API.
+3. Receive the detected classroom information.
+4. Confirm the detected location.
+5. Search for a destination classroom.
+6. Open the AR navigation preview.
+7. Save important classrooms to bookmarks.
+
+---
+
+## Main Features
+
+* Classroom sign image capture using camera or gallery.
+* Machine learning/OCR-based classroom recognition.
+* Confirmation screen for detected classroom information.
+* Classroom search connected to backend API.
+* Device-based saved bookmarks.
+* Unity AR navigation module integrated into the Android project.
+* Safe AR preview screen for stable emulator demonstration.
+* Android demo build support.
+
+---
+
+## Technology Stack
+
+### Frontend / Mobile App
+
+* React Native CLI
+* TypeScript
+* React Navigation
+* React Native Image Picker
+* AsyncStorage
+* React Native SVG
+* Android Studio Emulator
+
+### Backend / AI API
+
+* Python
+* FastAPI
+* Uvicorn
+* YOLOv8 / custom signage detection model
+* EasyOCR
+* OpenCV
+* Firestore
+* Hugging Face Spaces
+
+### AR / Unity
+
+* Unity
+* Unity NavMesh / AI Navigation
+* ARCore
+* AR Foundation
+* IL2CPP
+* ARM64 Android export
+* Unity Android export folders: `unityLibrary` and `shared`
+
+---
+
+## Backend API
+
+The hosted backend API is:
+
+```text
+https://rayouf0-uniway-backend-core.hf.space
 ```
 
-## Step 2: Build and run your app
+### Main Endpoints
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+| Feature            | Method | Endpoint                            | Description                                           |
+| ------------------ | ------ | ----------------------------------- | ----------------------------------------------------- |
+| Signage Prediction | POST   | `/predict`                          | Uploads an image and returns detected classroom data. |
+| Classroom Search   | GET    | `/classrooms/search?query=CLASS_ID` | Searches classroom records by room ID or name.        |
+| Fetch Bookmarks    | GET    | `/bookmarks/my`                     | Retrieves bookmarks for the current device.           |
+| Add Bookmark       | POST   | `/bookmarks/add`                    | Saves a classroom bookmark for the current device.    |
 
-### Android
+### Bookmark Header
 
-```sh
-# Using npm
-npm run android
+Bookmark endpoints require a device identifier:
 
-# OR using Yarn
-yarn android
+```text
+x-device-id: YOUR_DEVICE_TOKEN
 ```
 
-### iOS
+The mobile app generates and stores this device ID locally using AsyncStorage.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+### Prediction Request
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+The `/predict` endpoint expects form-data:
 
-```sh
-bundle install
+```text
+key: file
+type: image
 ```
 
-Then, and every time you update your native dependencies, run:
+Example returned classroom data may include:
 
-```sh
-bundle exec pod install
+```json
+{
+  "status": "success",
+  "data": {
+    "processed_room_id": "D101",
+    "className": "D101",
+    "buildingId": "D",
+    "floorNum": "1",
+    "description": "Classroom location description"
+  }
+}
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+---
 
-```sh
-# Using npm
-npm run ios
+## Project Structure
 
-# OR using Yarn
-yarn ios
+```text
+UniWay/
+├── android/
+│   ├── app/
+│   ├── unityLibrary/
+│   └── shared/
+├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── constants/
+│   ├── navigation/
+│   ├── screens/
+│   │   ├── ar/
+│   │   ├── bookmarks/
+│   │   ├── capture/
+│   │   ├── confirm/
+│   │   ├── home/
+│   │   ├── info/
+│   │   └── search/
+│   └── services/
+│       └── api/
+├── App.tsx
+├── index.js
+├── package.json
+└── README.md
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+---
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## Important Branches
 
-## Step 3: Modify your app
+| Branch                   | Purpose                                                                   |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `danah`                  | Main frontend development branch.                                         |
+| `unity-ar-integration`   | Branch used for Unity AR Android integration.                             |
+| `final-demo-integration` | Final demo branch containing safe AR preview and latest integration work. |
 
-Now that you have successfully run the app, let's make changes!
+Recommended demo branch:
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+```text
+final-demo-integration
+```
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+---
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## Setup Instructions
 
-## Congratulations! :tada:
+### 1. Clone the repository
 
-You've successfully run and modified your React Native App. :partying_face:
+```bash
+git clone https://github.com/donnadoe0x/uniway.git
+cd uniway
+```
 
-### Now what?
+### 2. Checkout the demo branch
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+```bash
+git checkout final-demo-integration
+```
 
-# Troubleshooting
+### 3. Install dependencies
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+```bash
+npm install
+```
 
-# Learn More
+### 4. Start Android emulator
 
-To learn more about React Native, take a look at the following resources:
+Open Android Studio, then start a normal Android emulator from Device Manager.
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+For frontend testing, use an x86_64 emulator. Full real Unity AR runtime requires a compatible ARM64 Android ARCore device.
+
+### 5. Bundle JavaScript for Android
+
+This project can run without Metro by bundling the JavaScript into the Android app:
+
+```bash
+mkdir android/app/src/main/assets
+
+npx react-native bundle --platform android --dev true --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+```
+
+### 6. Build the Android app
+
+```bash
+cd android
+./gradlew assembleDebug
+```
+
+On Windows PowerShell:
+
+```powershell
+cd android
+.\gradlew assembleDebug
+```
+
+### 7. Install the app on emulator/device
+
+```bash
+./gradlew installDebug
+```
+
+On Windows PowerShell:
+
+```powershell
+.\gradlew installDebug
+```
+
+### 8. Open the app manually if needed
+
+```bash
+adb shell monkey -p com.uniway 1
+```
+
+---
+
+## Running with Metro During Development
+
+For normal React Native development, Metro can also be used.
+
+Terminal 1:
+
+```bash
+npx react-native start --reset-cache
+```
+
+Terminal 2:
+
+```bash
+adb reverse tcp:8081 tcp:8081
+npx react-native run-android
+```
+
+If Metro is not used, remember to rebundle JavaScript after every frontend code change.
+
+---
+
+## Demo Flow
+
+Recommended flow for the final demo:
+
+1. Open the UniWay app.
+2. Go to the Capture screen.
+3. Capture or select a classroom sign image.
+4. View the detected classroom on the Confirmation screen.
+5. Save the classroom to bookmarks if needed.
+6. Search for a destination classroom.
+7. Select the destination.
+8. Open the AR Navigation preview.
+9. Press Start Navigation.
+10. Press Simulate Arrival.
+
+---
+
+## AR Implementation Notes
+
+The Unity AR module was prepared using imported 3D building models. The models were adjusted inside Unity, walkable corridor areas were prepared using NavMesh, and destination points were added for navigation.
+
+The Unity project was exported for Android and integrated into the React Native Android project using the generated `unityLibrary` and `shared` folders.
+
+Because the available emulator uses x86 architecture while the Unity AR module requires ARM64 and ARCore support, full Unity AR runtime testing is limited on the emulator. For this reason, the final demo uses a safe React Native AR preview screen. The real Unity AR module remains integrated and can be tested on a compatible Android ARCore device.
+
+---
+
+## Current Limitations
+
+* Full real Unity AR runtime testing requires a compatible Android ARCore ARM64 device.
+* The emulator is used mainly for frontend, backend, and demo flow testing.
+* Internet connection is required for image prediction, classroom search, and bookmark operations.
+* Bookmark deletion is not fully supported unless a delete endpoint is added to the backend.
+* iOS support is considered future work.
+
+---
+
+## Future Work
+
+* Test Unity AR navigation on a real Android ARCore device.
+* Improve real-world AR path alignment and tracking.
+* Add more buildings, floors, and classroom records.
+* Add support for stairs, elevators, and accessible routes.
+* Improve OCR accuracy with more signage images.
+* Add an admin dashboard for updating classroom and building data.
+* Add offline caching for classroom records and bookmarks.
+* Add iOS support using ARKit.
+
+---
+
+## Team Members
+
+* Danah Abdulrahman Alsurayhi
+* Ghala Abdul Rahim Al-Lahabi
+* Ruyuf Khamis Aljubayri
+* Maria Walid Alsharif
+
+Supervised by Dr. Manal Khayyat.
+
+---
+
+## Repository Notes
+
+This repository contains the mobile application and Android Unity integration files. Backend code is maintained separately in the backend repository and deployed through Hugging Face Spaces.
+
+Do not commit private files such as Firebase service account keys, environment secrets, or local machine paths.
