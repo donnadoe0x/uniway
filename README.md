@@ -314,7 +314,7 @@ Because the available emulator uses x86 architecture while the Unity AR module r
 
 ## Team Members
 
-* Danah Abdulrahman Alsurayhi
+* Danah Abdulrahman Alsurayhi (leader)
 * Ghala Abdul Rahim Al-Lahabi
 * Ruyuf Khamis Aljubayri
 * Maria Walid Alsharif
